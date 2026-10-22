@@ -1,6 +1,6 @@
 ---
 title: "ProyectoAED"
-author: "Daniel Arenas Gracia"
+author: "Daniel Arenas Gracia, Alvaro Egea Hernández"
 date: "2026-10-22"
 output: pdf_document
 ---
