@@ -1,0 +1,11 @@
+---
+title: "ProyectoAED"
+author: "Daniel Arenas Gracia"
+date: "2026-10-22"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
