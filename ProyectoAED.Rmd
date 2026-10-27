@@ -139,3 +139,35 @@ editor_options:
   markdown: 
     wrap: 72
 ---
+
+# Introducción
+
+# Materiales y métodos
+
+## Datos
+
+## Acondicionamiento
+
+## Perdidos, outliers e imputación
+
+# Técnicas estadísticas
+
+# Resultados
+
+## Calidad de los datos
+
+## Análisis univariante
+
+## P1: quién compite y cómo cambia
+
+## P2: el cuerpo de cada deporte
+
+## P3: ¿atletas más grandes hoy?
+
+## P4: ¿ganan los más grandes?
+
+##  Aportación adicional
+
+# Discusión
+
+# Conclusiones
