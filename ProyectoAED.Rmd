@@ -139,6 +139,7 @@ editor_options:
   markdown: 
     wrap: 72
 ---
+
 # Version
 
 This Rmd-skeleton uses the mdpi Latex template published 2023-03-25.
