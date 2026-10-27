@@ -177,6 +177,25 @@ skim(datos) # Vemos los datos faltantes, el mínimo y el máximo de cada columna
 
 ## Acondicionamiento
 
+```{r}
+#
+datos <- unique(datos)
+sum(duplicated(datos))
+
+#
+
+datos[is.na(datos$Medal),'Medal'] <- 'NM'
+
+# Nos quedamos solo con las filas donde hubo medalla
+medallas <- datos[datos$Medal != 'NM', ]
+
+# Quitamos las repeticiones de juegos por equipo
+medallero <- unique(medallas[, c('Games', 'Event', 'NOC', 'Medal')])
+
+
+
+```
+
 ## Perdidos, outliers e imputación
 
 # Técnicas estadísticas
