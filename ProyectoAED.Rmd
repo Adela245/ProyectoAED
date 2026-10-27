@@ -146,6 +146,35 @@ editor_options:
 
 ## Datos
 
+```{r}
+
+datos <- read.csv('./data/athlete_events.csv')
+
+#Vistazo general a los datos
+library(tidyverse)
+library(skimr)
+library(naniar)
+library(janitor)
+library(here)
+
+str(datos)
+
+
+
+
+```
+
+```{r}
+
+dim(datos)
+
+```
+
+```{r}
+skim(datos) # Vemos los datos faltantes, el mínimo y el máximo de cada columna
+
+```
+
 ## Acondicionamiento
 
 ## Perdidos, outliers e imputación
@@ -166,7 +195,7 @@ editor_options:
 
 ## P4: ¿ganan los más grandes?
 
-##  Aportación adicional
+## Aportación adicional
 
 # Discusión
 
