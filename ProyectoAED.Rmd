@@ -173,6 +173,7 @@ dim(datos)
 ```{r}
 skim(datos) # Vemos los datos faltantes, el mínimo y el máximo de cada columna
 
+
 ```
 
 ## Acondicionamiento
@@ -192,11 +193,90 @@ medallas <- datos[datos$Medal != 'NM', ]
 # Quitamos las repeticiones de juegos por equipo
 medallero <- unique(medallas[, c('Games', 'Event', 'NOC', 'Medal')])
 
+```
+
+```{r}
+#añadimos la columna IMC, variable auxiliar
+datos$IMC <- datos$Weight / (datos$Height / 100)^2
+```
+
+## Perdidos, outliers e imputación
+
+### Perdidos
+
+```{r}
+colSums(is.na(datos)) #tras los cambios de acondicionamiento vemos que hay disminuido los NaN en las columnas
 
 
 ```
 
-## Perdidos, outliers e imputación
+```{r}
+gg_miss_var(datos, show_pct = TRUE) #grafica chachi ggplot2 para ver porcentajes de Nans
+```
+
+```{r}
+#evolucion de los Nans por año para ver si han disminuid con el paso del tiempo 
+
+cols <- c('Age', 'Height', 'Weight')
+
+# creo tabla vacía
+perd_anio <- data.frame()
+
+for (v in cols) {
+  porcentaje <- tapply(is.na(datos[[v]]), datos$Year, mean) * 100
+  tabla <- data.frame(Year = as.numeric(names(porcentaje)),
+                      Variable = v,
+                      Porcentaje = as.numeric(porcentaje))
+  perd_anio <- rbind(perd_anio, tabla)
+}
+
+
+
+#ggplot
+library(ggplot2)
+ggplot(perd_anio, aes(x = Year, y = Porcentaje, color = Variable, shape = Variable)) +
+  geom_line() +
+  geom_point() +
+  labs(title = 'Evolución de los datos perdidos por año',
+       x = 'Año',
+       y = '% de datos perdidos') +
+  ylim(0, 100)
+
+```
+
+### outliers
+
+```{r}
+largo <- data.frame()
+ 
+for (v in c('Height', 'Weight')) {
+  tabla <- data.frame(Sex = datos$Sex,
+                      Variable = ifelse(v == 'Height', 'Altura (cm)', 'Peso (kg)'),
+                      Valor = datos[[v]])
+  largo <- rbind(largo, tabla)
+}
+ 
+ggplot(largo, aes(x = Sex, y = Valor)) +
+  stat_boxplot(geom = 'errorbar', width = 0.3) +
+  geom_boxplot(outlier.size = 0.5, outlier.alpha = 0.05) +
+  facet_wrap(~ Variable, scales = 'free_y') +
+  labs(title = 'Altura y peso por sexo',
+       x = 'Sexo', y = 'Valor')
+```
+
+```{r}
+#OPCIONALISIMO ALURA Y SEXO PARA ALGUNOS DEPORTES
+
+sub <- datos[datos$Sport %in% c('Basketball', 'Gymnastics', 'Weightlifting', 'Swimming'), ]
+ 
+ggplot(sub, aes(x = Sport, y = Height, fill = Sex)) +
+  stat_boxplot(geom = 'errorbar', width = 0.3,
+               position = position_dodge(width = 0.75)) +
+  geom_boxplot(outlier.size = 0.5, outlier.alpha = 0.3,
+               position = position_dodge(width = 0.75)) +
+  labs(title = 'Altura por deporte y sexo',
+       x = 'Deporte', y = 'Altura (cm)')
+```
 
 # Técnicas estadísticas
 
