@@ -200,11 +200,6 @@ medallero <- unique(medallas[, c('Games', 'Event', 'NOC', 'Medal')])
 datos$IMC <- datos$Weight / (datos$Height / 100)^2
 ```
 
-<<<<<<< HEAD
-
-
-=======
->>>>>>> Adela
 ## Perdidos, outliers e imputación
 
 ### Perdidos
@@ -249,10 +244,6 @@ ggplot(perd_anio, aes(x = Year, y = Porcentaje, color = Variable, shape = Variab
 
 ```
 
-<<<<<<< HEAD
-
-=======
->>>>>>> Adela
 ### outliers
 
 ```{r}
@@ -266,12 +257,8 @@ for (v in c('Height', 'Weight')) {
 }
  
 ggplot(largo, aes(x = Sex, y = Valor)) +
-<<<<<<< HEAD
-  geom_boxplot(outlier.size = 0.5, outlier.alpha = 0.3) +
-=======
   stat_boxplot(geom = 'errorbar', width = 0.3) +
   geom_boxplot(outlier.size = 0.5, outlier.alpha = 0.05) +
->>>>>>> Adela
   facet_wrap(~ Variable, scales = 'free_y') +
   labs(title = 'Altura y peso por sexo',
        x = 'Sexo', y = 'Valor')
@@ -283,14 +270,6 @@ ggplot(largo, aes(x = Sex, y = Valor)) +
 sub <- datos[datos$Sport %in% c('Basketball', 'Gymnastics', 'Weightlifting', 'Swimming'), ]
  
 ggplot(sub, aes(x = Sport, y = Height, fill = Sex)) +
-<<<<<<< HEAD
-  geom_boxplot(outlier.size = 0.5, outlier.alpha = 0.3) +
-  labs(title = 'Altura por deporte y sexo',
-       x = 'Deporte', y = 'Altura (cm)')
-```
-
-
-=======
   stat_boxplot(geom = 'errorbar', width = 0.3,
                position = position_dodge(width = 0.75)) +
   geom_boxplot(outlier.size = 0.5, outlier.alpha = 0.3,
@@ -298,7 +277,6 @@ ggplot(sub, aes(x = Sport, y = Height, fill = Sex)) +
   labs(title = 'Altura por deporte y sexo',
        x = 'Deporte', y = 'Altura (cm)')
 ```
->>>>>>> Adela
 
 # Técnicas estadísticas
 
