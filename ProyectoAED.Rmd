@@ -200,6 +200,34 @@ medallero <- unique(medallas[, c('Games', 'Event', 'NOC', 'Medal')])
 datos$IMC <- datos$Weight / (datos$Height / 100)^2
 ```
 
+
+
+Comprobamos posibles valores erróneos usando el IMC:
+```{r}
+
+sum(datos$IMC<12, na.rm = T) #Resultado: 2 , asignar NA 
+sum(datos$IMC>50, na.rm=T ) #Resultado: 2 , asignar NA 
+
+
+
+#Asignamos NA tanto en peso como en altura en estas variables
+# 1. Creamos la máscara lógica asegurando que IMC no sea NA
+outliers_imc <- !is.na(datos$IMC) & (datos$IMC < 12 | datos$IMC > 50)
+
+#comprobamos que sale lo esperado: 14
+sum(outliers_imc)
+
+# 2. Asignamos NA a las tres variables (por simplificación asignamos NA a altura y edad, pero se podría ver manualmente cúal es la columna errónea)
+datos$Height[outliers_imc] <- NA
+datos$Weight[outliers_imc] <- NA
+datos$IMC[outliers_imc]    <- NA
+
+```
+
+
+
+
+
 ## Perdidos, outliers e imputación
 
 ### Perdidos
@@ -244,7 +272,7 @@ ggplot(perd_anio, aes(x = Year, y = Porcentaje, color = Variable, shape = Variab
 
 ```
 
-### outliers
+### Outliers
 
 ```{r}
 largo <- data.frame()
@@ -278,7 +306,17 @@ ggplot(sub, aes(x = Sport, y = Height, fill = Sex)) +
        x = 'Deporte', y = 'Altura (cm)')
 ```
 
-# Técnicas estadísticas
+### Imputación
+
+
+
+
+
+
+
+
+
+## Técnicas estadísticas
 
 # Resultados
 
@@ -292,7 +330,7 @@ ggplot(sub, aes(x = Sport, y = Height, fill = Sex)) +
 
 ## P3: ¿Quién concentra las medallas?
 
-## P4: ¿Cuáles son las características de las carreras olímpicas más longevas y exitosas de la historia?
+## P4: ¿Cuáles son las características de las carreras olímpicas más exitosas de la historia?
 
 ## Aportación adicional
 
