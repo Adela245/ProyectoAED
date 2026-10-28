@@ -308,9 +308,66 @@ ggplot(sub, aes(x = Sport, y = Height, fill = Sex)) +
 
 ### Imputación
 
+Imputacion de la altura mediana
+
+```{r}
+sum(is.na(datos$Height)) #NAs en altura pre-imputación
+
+#Imputación 1
+datos$Height_imputed <- ifelse(
+  is.na(datos$Height),
+  ave(datos$Height, datos$Sex, datos$Sport, datos$Year, FUN = function(x) median(x, na.rm = TRUE)),datos$Height)
+  
+
+sum(is.na((datos$Height_imputed))) #NAs en altura post- primera imputación
 
 
+#Imputación 2
+datos$Height_imputed <- ifelse(
+  is.na(datos$Height),
+  ave(datos$Height, datos$Sex, datos$Sport,  FUN = function(x) median(x, na.rm = TRUE)),datos$Height_imputed)
 
+sum(is.na((datos$Height_imputed))) #NAs en altura post- segunda imputación
+
+
+#Imputación 3
+datos$Height_imputed <- ifelse(
+  is.na(datos$Height),
+  ave(datos$Height, datos$Sex,  FUN = function(x) median(x, na.rm = TRUE)),datos$Height_imputed)
+
+sum(is.na((datos$Height_imputed))) #NAs en altura post- tercera imputación
+
+
+```
+ Imputacion del peso
+```{r}
+sum(is.na(datos$Height)) #NAs en altura pre-imputación
+
+#Imputación 1
+datos$Weight_imputed <- ifelse(
+  is.na(datos$Weight),
+  ave(datos$Weight, datos$Sex, datos$Sport, datos$Year, FUN = function(x) median(x, na.rm = TRUE)),datos$Weight)
+  
+
+sum(is.na((datos$Weight_imputed))) #NAs en altura post- primera imputación
+
+
+#Imputación 2
+datos$Weight_imputed <- ifelse(
+  is.na(datos$Weight),
+  ave(datos$Weight, datos$Sex, datos$Sport,  FUN = function(x) median(x, na.rm = TRUE)),datos$Weight_imputed)
+
+sum(is.na((datos$Weight_imputed))) #NAs en altura post- segunda imputación
+
+
+#Imputación 3
+datos$Weight_imputed <- ifelse(
+  is.na(datos$Weight),
+  ave(datos$Weight, datos$Sex,  FUN = function(x) median(x, na.rm = TRUE)),datos$Weight_imputed)
+
+sum(is.na((datos$Weight_imputed))) #NAs en altura post- tercera imputación
+```
+ 
 
 
 
