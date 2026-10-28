@@ -290,9 +290,9 @@ ggplot(sub, aes(x = Sport, y = Height, fill = Sex)) +
 
 ## P2: el cuerpo de cada deporte
 
-## P3: ¿atletas más grandes hoy?
+## P3: ¿Quién concentra las medallas?
 
-## P4: ¿ganan los más grandes?
+## P4: ¿Cuáles son las características de las carreras olímpicas más longevas y exitosas de la historia?
 
 ## Aportación adicional
 
