@@ -325,7 +325,7 @@ sum(is.na((datos$Height_imputed))) #NAs en altura post- primera imputación
 
 #Imputación 2
 datos$Height_imputed <- ifelse(
-  is.na(datos$Height),
+  is.na(datos$Height_imputed),
   ave(datos$Height, datos$Sex, datos$Sport,  FUN = function(x) median(x, na.rm = TRUE)),datos$Height_imputed)
 
 sum(is.na((datos$Height_imputed))) #NAs en altura post- segunda imputación
@@ -333,7 +333,7 @@ sum(is.na((datos$Height_imputed))) #NAs en altura post- segunda imputación
 
 #Imputación 3
 datos$Height_imputed <- ifelse(
-  is.na(datos$Height),
+  is.na(datos$Height_imputed),
   ave(datos$Height, datos$Sex,  FUN = function(x) median(x, na.rm = TRUE)),datos$Height_imputed)
 
 sum(is.na((datos$Height_imputed))) #NAs en altura post- tercera imputación
@@ -355,7 +355,7 @@ sum(is.na((datos$Weight_imputed))) #NAs en peso post- primera imputación
 
 #Imputación 2
 datos$Weight_imputed <- ifelse(
-  is.na(datos$Weight),
+  is.na(datos$Weight_imputed),
   ave(datos$Weight, datos$Sex, datos$Sport,  FUN = function(x) median(x, na.rm = TRUE)),datos$Weight_imputed)
 
 sum(is.na((datos$Weight_imputed))) #NAs en peso post- segunda imputación
@@ -363,7 +363,7 @@ sum(is.na((datos$Weight_imputed))) #NAs en peso post- segunda imputación
 
 #Imputación 3
 datos$Weight_imputed <- ifelse(
-  is.na(datos$Weight),
+  is.na(datos$Weight_imputed),
   ave(datos$Weight, datos$Sex,  FUN = function(x) median(x, na.rm = TRUE)),datos$Weight_imputed)
 
 sum(is.na((datos$Weight_imputed))) #NAs en peso post- tercera imputación
@@ -375,7 +375,7 @@ sum(is.na((datos$Weight_imputed))) #NAs en peso post- tercera imputación
 # NAs en edad pre-imputación
 sum(is.na(datos$Age))
 
-# Imputación 1: La más precisa (por Sexo, Deporte y Año/Época)
+# Imputación 1
 datos$Age_imputed <- ifelse(
   is.na(datos$Age),
   ave(datos$Age, datos$Sex, datos$Sport, datos$Year, FUN = function(x) round(median(x, na.rm = TRUE))),
@@ -385,9 +385,9 @@ datos$Age_imputed <- ifelse(
 # NAs en edad post-primera imputación
 sum(is.na(datos$Age_imputed))
 
-# Imputación 2: Si el grupo anterior era muy pequeño (ej. un deporte raro en un año concreto), relajamos quitando el Año
+# Imputación 2
 datos$Age_imputed <- ifelse(
-  is.na(datos$Age),
+  is.na(datos$Age_imputed),
   ave(datos$Age, datos$Sex, datos$Sport, FUN = function(x) round(median(x, na.rm = TRUE))),
   datos$Age_imputed
 )
@@ -397,9 +397,9 @@ datos$Age_imputed <- ifelse(
 sum(is.na(datos$Age_imputed))
 
 
-# Imputación 3: La más general (solo por Sexo) por si quedó algún NA residual
+# Imputación 3
 datos$Age_imputed <- ifelse(
-  is.na(datos$Age),
+  is.na(datos$Age_imputed),
   ave(datos$Age, datos$Sex, FUN = function(x) round(median(x, na.rm = TRUE))),
   datos$Age_imputed
 )
