@@ -286,9 +286,6 @@ colSums(is.na(datos)) #tras los cambios de acondicionamiento vemos que hay dismi
 
 ```
 
-```{r}
-gg_miss_var(datos, show_pct = TRUE) #grafica chachi ggplot2 para ver porcentajes de Nans
-```
 
 ```{r}
 #evolucion de los Nans por año para ver si han disminuid con el paso del tiempo 
@@ -353,6 +350,81 @@ ggplot(sub, aes(x = Sport, y = Height, fill = Sex)) +
   labs(title = 'Altura por deporte y sexo',
        x = 'Deporte', y = 'Altura (cm)')
 ```
+
+
+```{r outliers-metodos, include = FALSE }
+#MÉTODOS DE IDENTIFIACIÓN DE OUTLIERS Y TABLA RESUMEN
+# n = total de datos
+# nMiss = los valores perdidos
+#nOut = outliers detectados
+#limites teoricos
+#limites reales de los datos sanos
+
+detectar_outliers <- function(x, variable) {
+  n_na <- sum(is.na(x))
+  x <- x[!is.na(x)]
+
+  media <- mean(x)
+  dt <- sd(x)
+  mediana <- median(x)
+  desv_mad <- mad(x)
+  q1 <- as.numeric(quantile(x, 0.25))
+  q3 <- as.numeric(quantile(x, 0.75))
+  iqr <- q3 - q1
+
+  inf <- c(media - 3 * dt, mediana - 3 * desv_mad, q1 - 1.5 * iqr)
+  sup <- c(media + 3 * dt, mediana + 3 * desv_mad, q3 + 1.5 * iqr)
+
+  n_out <- numeric(3)
+  min_nom <- numeric(3)
+  max_nom <- numeric(3)
+  for (i in 1:3) {
+    n_out[i] <- sum(x < inf[i] | x > sup[i])
+    nominales <- x[x >= inf[i] & x <= sup[i]]
+    min_nom[i] <- min(nominales)
+    max_nom[i] <- max(nominales)
+  }
+
+  data.frame(Variable = variable, Metodo = c("3 sigma", "Hampel", "Boxplot"),
+             n = length(x), nMiss = n_na, nOut = n_out,
+             lowLim = round(inf, 1), upLim = round(sup, 1),
+             minNom = min_nom, maxNom = max_nom)
+}
+
+resultado_outliers <- rbind(detectar_outliers(datos$Height, "Altura"),
+                            detectar_outliers(datos$Weight, "Peso"),
+                            detectar_outliers(datos$Age, "Edad"))
+
+
+```
+
+```{r}
+
+#OUTLIERS POR DEPORTE 
+marcas_outliers <- data.frame(Altura = rep(FALSE, nrow(datos)),
+                              Peso = rep(FALSE, nrow(datos)),
+                              Edad = rep(FALSE, nrow(datos)))
+variables <- c("Height", "Weight", "Age")
+for (i in 1:3) {
+  x <- datos[[variables[i]]]
+  q1 <- ave(x, datos$Sex, datos$Sport, FUN = function(v) quantile(v, 0.25, na.rm = TRUE))
+  q3 <- ave(x, datos$Sex, datos$Sport, FUN = function(v) quantile(v, 0.75, na.rm = TRUE))
+  n_datos <- ave(as.numeric(!is.na(x)), datos$Sex, datos$Sport, FUN = sum)
+  iqr <- q3 - q1
+  marcas_outliers[[i]] <- !is.na(x) & n_datos >= 30 & (x < q1 - 1.5 * iqr | x > q3 + 1.5 * iqr)
+}
+
+deportes_edad_extrema <- head(sort(table(datos$Sport[marcas_outliers$Edad]), decreasing = TRUE), 3)
+
+
+columnas <- c("ID", "Name", "Sex", "Age", "Height", "Weight", "Sport", "Year")
+head(datos[marcas_outliers$Altura, columnas][order(datos$Height[marcas_outliers$Altura]), ], 20)
+head(datos[marcas_outliers$Peso, columnas][order(datos$Weight[marcas_outliers$Peso]), ], 20)
+head(datos[marcas_outliers$Edad, columnas][order(-datos$Age[marcas_outliers$Edad]), ], 20)
+
+deportes_edad_extrema
+```
+
 
 ### Imputación
 #### Método de la mediana
