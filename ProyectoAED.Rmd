@@ -429,103 +429,125 @@ deportes_edad_extrema
 ### Imputación
 #### Método de la mediana
 
+```{r atletas-juegos}
+
+#Creamos df: atletas juegos para no repetir datos de una persona repetidas veces si tiene varias participaciones en los mismos juegos
+
+atletas_juegos <- datos[!duplicated(datos[, c("ID", "Games")]), ]
+
+
+
+#Weissmuller
+
+```
+
+
+
+
+
 ##### Imputacion de la altura 
 
-```{r}
-sum(is.na(datos$Height)) #NAs en altura pre-imputación
+```{r imput-mediana-altura}
+sum(is.na(atletas_juegos$Height)) #NAs en altura pre-imputación
 
 #Imputación 1
-datos$Height_imputed <- ifelse(
-  is.na(datos$Height),
-  ave(datos$Height, datos$Sex, datos$Sport, datos$Year, FUN = function(x) median(x, na.rm = TRUE)),datos$Height)
+atletas_juegos$Height_imputed <- ifelse(
+  is.na(atletas_juegos$Height),
+  ave(atletas_juegos$Height, atletas_juegos$Sex, atletas_juegos$Sport, atletas_juegos$Year, FUN = function(x) median(x, na.rm = TRUE)),atletas_juegos$Height)
   
 
-sum(is.na((datos$Height_imputed))) #NAs en altura post- primera imputación
+sum(is.na((atletas_juegos$Height_imputed))) #NAs en altura post- primera imputación
 
 
 #Imputación 2
-datos$Height_imputed <- ifelse(
-  is.na(datos$Height_imputed),
-  ave(datos$Height, datos$Sex, datos$Sport,  FUN = function(x) median(x, na.rm = TRUE)),datos$Height_imputed)
+atletas_juegos$Height_imputed <- ifelse(
+  is.na(atletas_juegos$Height_imputed),
+  ave(atletas_juegos$Height, atletas_juegos$Sex, atletas_juegos$Sport,  FUN = function(x) median(x, na.rm = TRUE)),atletas_juegos$Height_imputed)
 
-sum(is.na((datos$Height_imputed))) #NAs en altura post- segunda imputación
+sum(is.na((atletas_juegos$Height_imputed))) #NAs en altura post- segunda imputación
 
 
 #Imputación 3
-datos$Height_imputed <- ifelse(
-  is.na(datos$Height_imputed),
-  ave(datos$Height, datos$Sex,  FUN = function(x) median(x, na.rm = TRUE)),datos$Height_imputed)
+atletas_juegos$Height_imputed <- ifelse(
+  is.na(atletas_juegos$Height_imputed),
+  ave(atletas_juegos$Height, atletas_juegos$Sex,  FUN = function(x) median(x, na.rm = TRUE)),atletas_juegos$Height_imputed)
 
-sum(is.na((datos$Height_imputed))) #NAs en altura post- tercera imputación
+sum(is.na((atletas_juegos$Height_imputed))) #NAs en altura post- tercera imputación
 
 
 ```
 ##### Imputacion del peso 
-```{r}
-sum(is.na(datos$Weight)) #NAs en peso pre-imputación
+```{r imput-mediana-peso}
+sum(is.na(atletas_juegos$Weight)) #NAs en peso pre-imputación
 
 #Imputación 1
-datos$Weight_imputed <- ifelse(
-  is.na(datos$Weight),
-  ave(datos$Weight, datos$Sex, datos$Sport, datos$Year, FUN = function(x) median(x, na.rm = TRUE)),datos$Weight)
+atletas_juegos$Weight_imputed <- ifelse(
+  is.na(atletas_juegos$Weight),
+  ave(atletas_juegos$Weight, atletas_juegos$Sex, atletas_juegos$Sport, atletas_juegos$Year, FUN = function(x) median(x, na.rm = TRUE)),atletas_juegos$Weight)
   
 
-sum(is.na((datos$Weight_imputed))) #NAs en peso post- primera imputación
+sum(is.na((atletas_juegos$Weight_imputed))) #NAs en peso post- primera imputación
 
 
 #Imputación 2
-datos$Weight_imputed <- ifelse(
-  is.na(datos$Weight_imputed),
-  ave(datos$Weight, datos$Sex, datos$Sport,  FUN = function(x) median(x, na.rm = TRUE)),datos$Weight_imputed)
+atletas_juegos$Weight_imputed <- ifelse(
+  is.na(atletas_juegos$Weight_imputed),
+  ave(atletas_juegos$Weight, atletas_juegos$Sex, atletas_juegos$Sport,  FUN = function(x) median(x, na.rm = TRUE)),atletas_juegos$Weight_imputed)
 
-sum(is.na((datos$Weight_imputed))) #NAs en peso post- segunda imputación
+sum(is.na((atletas_juegos$Weight_imputed))) #NAs en peso post- segunda imputación
 
 
 #Imputación 3
-datos$Weight_imputed <- ifelse(
-  is.na(datos$Weight_imputed),
-  ave(datos$Weight, datos$Sex,  FUN = function(x) median(x, na.rm = TRUE)),datos$Weight_imputed)
+atletas_juegos$Weight_imputed <- ifelse(
+  is.na(atletas_juegos$Weight_imputed),
+  ave(atletas_juegos$Weight, atletas_juegos$Sex,  FUN = function(x) median(x, na.rm = TRUE)),atletas_juegos$Weight_imputed)
 
-sum(is.na((datos$Weight_imputed))) #NAs en peso post- tercera imputación
+sum(is.na((atletas_juegos$Weight_imputed))) #NAs en peso post- tercera imputación
 ```
 ##### Imputación de edad 
 
 
-```{r}
+```{r imput-mediana-edad}
 # NAs en edad pre-imputación
-sum(is.na(datos$Age))
+sum(is.na(atletas_juegos$Age))
 
 # Imputación 1
-datos$Age_imputed <- ifelse(
-  is.na(datos$Age),
-  ave(datos$Age, datos$Sex, datos$Sport, datos$Year, FUN = function(x) round(median(x, na.rm = TRUE))),
-  datos$Age
+atletas_juegos$Age_imputed <- ifelse(
+  is.na(atletas_juegos$Age),
+  ave(atletas_juegos$Age, atletas_juegos$Sex, atletas_juegos$Sport, atletas_juegos$Year, FUN = function(x) round(median(x, na.rm = TRUE))),
+  atletas_juegos$Age
 )
 
 # NAs en edad post-primera imputación
-sum(is.na(datos$Age_imputed))
+sum(is.na(atletas_juegos$Age_imputed))
 
 # Imputación 2
-datos$Age_imputed <- ifelse(
-  is.na(datos$Age_imputed),
-  ave(datos$Age, datos$Sex, datos$Sport, FUN = function(x) round(median(x, na.rm = TRUE))),
-  datos$Age_imputed
+atletas_juegos$Age_imputed <- ifelse(
+  is.na(atletas_juegos$Age_imputed),
+  ave(atletas_juegos$Age, atletas_juegos$Sex, atletas_juegos$Sport, FUN = function(x) round(median(x, na.rm = TRUE))),
+  atletas_juegos$Age_imputed
 )
 
 
 # NAs en edad post- segunda imputación
-sum(is.na(datos$Age_imputed))
+sum(is.na(atletas_juegos$Age_imputed))
 
 
 # Imputación 3
-datos$Age_imputed <- ifelse(
-  is.na(datos$Age_imputed),
-  ave(datos$Age, datos$Sex, FUN = function(x) round(median(x, na.rm = TRUE))),
-  datos$Age_imputed
+atletas_juegos$Age_imputed <- ifelse(
+  is.na(atletas_juegos$Age_imputed),
+  ave(atletas_juegos$Age, atletas_juegos$Sex, FUN = function(x) round(median(x, na.rm = TRUE))),
+  atletas_juegos$Age_imputed
 )
 
 # NAs en edad post- tercera imputación
-sum(is.na(datos$Age_imputed))
+sum(is.na(atletas_juegos$Age_imputed))
+```
+```{r IMC-imputed}
+
+#Recalculamos IMC con las variables imputadas
+atletas_juegos$IMC_imputed <- atletas_juegos$Weight_imputed / (atletas_juegos$Height_imputed / 100)^2
+
 ```
 
 
