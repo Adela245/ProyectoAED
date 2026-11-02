@@ -224,17 +224,23 @@ skim(datos) # Vemos los datos faltantes, el mínimo y el máximo de cada columna
 ```{r}
 #
 datos <- unique(datos)
-sum(duplicated(datos))
+sum(duplicated(datos)) # comprobar que no hay duplicados
 
-#
+# Sustituimos los nan de la columna Medal por NM: no medalla
 
 datos[is.na(datos$Medal),'Medal'] <- 'NM'
 
+
+# Dos nuevos dataframes para contestar las preguntas
 # Nos quedamos solo con las filas donde hubo medalla
 medallas <- datos[datos$Medal != 'NM', ]
 
 # Quitamos las repeticiones de juegos por equipo
 medallero <- unique(medallas[, c('Games', 'Event', 'NOC', 'Medal')])
+
+# Nos creamos columnas para posteriores analisis
+datos$Decada <- floor(datos$Year / 10) *10
+medallero$Decada <- floor(medallero$Year / 10) *10
 
 ```
 
