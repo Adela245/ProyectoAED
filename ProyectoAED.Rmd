@@ -598,6 +598,44 @@ muestra$Weight_cart <- completos_cart$Weight
 ## Análisis univariante
 
 ## P1: quién compite y cómo cambia
+```{r p1-datos, include= FALSE}
+# Datos con los juegos 
+juegos <- unique(atletas_juegos[,c('Games', 'Year', 'Season')])
+juegos <- juegos[order(juegos$Year), ]
+
+#Numero de atletas en cada temporada
+atletas_por_juegos <- table(atletas_juegos$Games)
+
+#Numero de paises en cada temporada
+paises_por_juegos <- tapply(atletas_juegos$NOC, atletas_juegos$Games, function(x) length(unique(x)))
+
+# Porcentaje de mujeres en cada temporada
+mujeres_por_juegos <- tapply(atletas_juegos$Sex == "F", atletas_juegos$Games, mean) * 100
+
+# Añadimos columnas al dataframe
+juegos$Atletas <- as.numeric(atletas_por_juegos[juegos$Games])
+juegos$Paises <- as.numeric(paises_por_juegos[juegos$Games])
+juegos$Mujeres_pct <- as.numeric(mujeres_por_juegos[juegos$Games])
+
+# Ploteamos 
+indicadores <- c("Atletas", "Paises", "Mujeres_pct")
+etiquetas <- c("Nº de atletas", "Nº de países", "% de mujeres")
+largo <- data.frame()
+for (i in 1:3) {
+  tabla <- data.frame(Year = juegos$Year, Season = juegos$Season,
+                      Indicador = etiquetas[i], Valor = juegos[[indicadores[i]]])
+  largo <- rbind(largo, tabla)
+}
+largo$Indicador <- factor(largo$Indicador, levels = etiquetas)
+graficoP2 <- ggplot(largo, aes(x = Year, y = Valor, color = Season)) +
+  geom_vline(xintercept = c(1980, 1984), linetype = "dashed", color = "grey50") +
+  geom_line() + geom_point(size = 1) +
+  facet_wrap(~ Indicador, scales = "free_y") +
+  labs(x = "Año", y = "", color = "Estación") + theme_minimal()
+graficoP2
+#ggsave("graficoP2.png", graficoP2, width = 10, height = 4, dpi = 150)
+#getwd()
+```
 
 ## P2: el cuerpo de cada deporte
 
