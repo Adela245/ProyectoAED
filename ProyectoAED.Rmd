@@ -139,6 +139,18 @@ editor_options:
   markdown: 
     wrap: 72
 ---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE,fig.width = 6, fig.height = 3.5, fig.align = "center")
+library(ggplot2)
+library(naniar)
+library(GGally)
+library(mice)
+
+```
+
+
+
+
 
 # Introducción
 
@@ -146,9 +158,11 @@ editor_options:
 
 ## Datos
 
-```{r}
+```{r datos, include=FALSE}
 
 datos <- read.csv('./data/athlete_events.csv')
+n_filas_originales <- nrow(datos)
+n_columnas <- ncol(datos)
 
 #Vistazo general a los datos
 library(tidyverse)
@@ -164,11 +178,40 @@ str(datos)
 
 ```
 
-```{r}
 
-dim(datos)
+```{r sumario}
 
+columnas<-colnames(datos)
+sumario<-data.frame()
+
+for (i in seq_along(columnas)){
+  sumario[i,1]<- columnas[i]
+  sumario[i,2]<- class(datos[,i])
+  sumario[i,3]<- length(unique(datos[,i]))
+  tabla_freq <- table(datos[, i])
+  sumario[i, 4] <- names(which.max(tabla_freq))
+  sumario[i, 5] <- max(tabla_freq)
+  sumario[i, 6] <-  sumario[i,5]/ nrow(datos)
+  sumario[i,7]<- sum(is.na(datos[,i]))
+  sumario[i,8]<- sumario[i,7]/ nrow(datos)
+}
+
+colnames(sumario)[1]<- 'variable'
+colnames(sumario)[2]<- 'type'
+colnames(sumario)[3]<- 'levels'
+colnames(sumario)[4] <- 'topLevel'
+colnames(sumario)[5] <- 'topCount'
+colnames(sumario)[6] <- 'topFrac'
+colnames(sumario)[7]<- 'missFreq'
+colnames(sumario)[8]<- 'missFrac'
+
+knitr::kable(sumario, row.names = FALSE,
+             caption = "Sumario del dataset original")
+
+#Explicar NAN de medallas
 ```
+
+
 
 ```{r}
 skim(datos) # Vemos los datos faltantes, el mínimo y el máximo de cada columna
