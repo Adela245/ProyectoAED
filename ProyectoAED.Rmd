@@ -602,6 +602,24 @@ muestra$Weight_cart <- completos_cart$Weight
 ## P2: el cuerpo de cada deporte
 
 ## P3: ¿Quién concentra las medallas?
+```{r p3-datos,include=F}
+#En esta sección trabajaremos sobre todo con el df medallero
+
+#Asignamos Equipo Unificado de 1992 a la URSS
+medallero$NOC[medallero$NOC == "EUN"] <- "URS"
+
+#Asignamos RDA Y RFA a Alemania
+medallero$NOC[medallero$NOC %in% c("FRG", "GDR")] <- "GER"
+
+
+#sacamos los paises top 10 de medallas
+medallas_pais <- sort(table(medallero$NOC), decreasing = TRUE)
+top10 <- names(medallas_pais)[1:10]
+
+
+```
+
+
 
 ## P4: ¿Cuáles son las características de las carreras olímpicas más exitosas de la historia?
 
