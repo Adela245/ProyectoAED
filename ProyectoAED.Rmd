@@ -598,13 +598,13 @@ muestra$Weight_cart <- completos_cart$Weight
 
 Para esta pregunta, sería muy emborroso y tedioso analizar el cuerpo "ideal" de cada deporte ya que son más de 60 los deportes que se juegan en los Juegos Olímpicos. Por ellos hemos hecho una selección de 8 deportes contrastados.
 
-Los deportes seleccionados son baloncesto, gimnasia, natación,halterofilia, atletismo, judo, voleibol, futbol y ciclismo.
+Los deportes seleccionados son baloncesto, gimnasia, natación,halterofilia, atletismo, judo, voleibol y ciclismo.
 
 A continuación filtramos el dataframe atletas_juegos para quedarnos solo con las filas de los deportes seleccionados.
 
 ### Distribución de la Altura por Deporte y Sexo
 ```{r}
-deportes_sel <- c("Basketball", "Gymnastics","Weightlifting","Swimming", "Athletics", "Judo", "Volleyball", "Football", "Cycling")
+deportes_sel <- c("Basketball", "Gymnastics","Weightlifting","Swimming", "Athletics", "Judo", "Volleyball", "Cycling")
 
 
 obs <- atletas_juegos[atletas_juegos$Sport %in% deportes_sel, ]
@@ -615,7 +615,7 @@ obs$Sport <- reorder(obs$Sport, obs$Height_imputed, FUN = median)
 
 ```
 
-El objetivo de este gráfico es mostrar la distribución de la altura para 9 deportes, comparando hombres y mujeres lado a lado en cada deporte que hemos escogido.
+El objetivo de este gráfico es mostrar la distribución de la altura para 8 deportes, comparando hombres y mujeres lado a lado en cada deporte que hemos escogido.
 
 ```{r}
 
@@ -661,45 +661,6 @@ ggplot(obs, aes(x = Sport, y = Weight_imputed, fill = Sex)) +
   theme(legend.position = "bottom")
 ```
 Aunque el peso tiende a aumentar con la estatura, observamos excepciones destacables: en el judo, a pesar de tener estaturas contenidas, el peso mediano se dispara debido a la alta masa muscular.
-
-### Densidad Corporal: IMC Mediano por Deporte
-Para aislar el efecto de la estatura sobre la masa corporal, calculamos el Índice de Masa Corporal (IMC) mediano. Un gráfico de barras permite identificar de forma directa qué disciplinas requieren una mayor densidad corpora
-
-```{r}
-# Calculamos la mediana del IMC por deporte y sexo
-resumen_imc <- aggregate(IMC_imputed ~ Sport + Sex, data = obs, FUN = median)
-
-ggplot(resumen_imc, aes(x = Sport, y = IMC_imputed, fill = Sex)) +
-  geom_col(position = position_dodge(0.75), width = 0.6) +
-  coord_flip() +
-  scale_fill_manual(values = c("F" = "#E69F00", "M" = "#56B4E9"), labels = c("F" = "Mujeres", "M" = "Hombres")) +
-  labs(x = "Deporte", y = "IMC Mediano (kg/m²)", fill = "Sexo") +
-  theme_minimal() +
-  theme(legend.position = "bottom")
-```
-Como era de esperar, la halterofilia encabeza el ranking de IMC mediano en ambos sexos, seguida de disciplinas de contacto/fuerza como el Judo. Por contra, el atletismo y el ciclismo muestran valores de IMC más reducidos para favorecer la eficiencia aeróbica.
-
-### Relación Antropométrica: Altura vs. Peso
-
-
-```{r}
-install.packages("ggrepel")
-library(ggrepel)
-resumen_cuerpo <- aggregate(cbind(Height_imputed, Weight_imputed) ~ Sport + Sex, data = obs, FUN = median)
-
-ggplot(resumen_cuerpo, aes(x = Height_imputed, y = Weight_imputed, color = Sex)) +
-  geom_point(size = 3) +
-  # geom_text_repel desplaza suavemente los nombres para que no se pisen entre sí
-  geom_text_repel(aes(label = Sport), size = 3.2, show.legend = FALSE) +
-  scale_color_manual(values = c("F" = "#E69F00", "M" = "#56B4E9"), labels = c("F" = "Mujeres", "M" = "Hombres")) +
-  labs(title = "Mapa Corporal Mediano: Altura vs. Peso",
-       x = "Altura mediana (cm)", 
-       y = "Peso mediano (kg)", 
-       color = "Sexo") +
-  theme_minimal() +
-  theme(legend.position = "bottom")
-```
-El mapa biótico confirma una fuerte especialización biomecánica: mientras que la mayoría de deportes siguen una tendencia lineal directa donde a mayor estatura corresponde mayor peso (con el baloncesto en el extremo superior y la gimnasia en el inferior), disciplinas como el judo y la halterofilia rompen esta norma al registrar un peso elevado en relación con su estatura contenida, lo que refleja una alta densidad de masa muscular magra y requerimientos de fuerza explosiva.
 
 
 ## P3: ¿Quién concentra las medallas?
