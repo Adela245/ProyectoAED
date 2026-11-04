@@ -589,13 +589,32 @@ muestra$Weight_cart <- completos_cart$Weight
 
 
 
-## Técnicas estadísticas
+
 
 # Resultados
 
 ## Calidad de los datos
 
 ## Análisis univariante
+```{r histogramas, include=FALSE}
+
+#histograma de cada variable numérica
+variables <- c("Age", "Height", "Weight", "IMC")
+nombres <- c("Edad (años)", "Altura (cm)", "Peso (kg)", "IMC")
+dft<- data.frame()
+for (i in 1:4) {
+  tabla <- data.frame(Sex = atletas_juegos$Sex, Variable = nombres[i],
+                      Valor = atletas_juegos[[variables[i]]])
+  dft <- rbind(dft, tabla)
+}
+dft$Variable <- factor(dft$Variable, levels = nombres)
+ggplot(dft, aes(x = Valor, fill = Sex)) +
+  geom_histogram(bins = 40, alpha = 0.6, position = "identity") +
+  facet_wrap(~ Variable, scales = "free") +
+  labs(x = "", y = "Frecuencia", fill = "Sexo") + theme_minimal()
+```
+
+
 
 ## P1: quién compite y cómo cambia
 
