@@ -594,7 +594,7 @@ muestra$Weight_cart <- completos_cart$Weight
 
 ## P1: quién compite y cómo cambia
 
-## P2: el cuerpo de cada deporte
+## P2: el cuerpo y edad de cada deporte
 
 Para esta pregunta, sería muy emborroso y tedioso analizar el cuerpo "ideal" de cada deporte ya que son más de 60 los deportes que se juegan en los Juegos Olímpicos. Por ellos hemos hecho una selección de 8 deportes contrastados.
 
@@ -619,7 +619,7 @@ El objetivo de este gráfico es mostrar la distribución de la altura para 8 dep
 
 ```{r}
 
-ggplot(obs, aes(x = Sport, y = Height_imputed, fill = Sex))+
+ggplot(obs, aes(x = Height_imputed, y = Sport, fill = Sex))+
 
 #bigotes, barrita horizontal cruzada y ajuste para que no solapen
 stat_boxplot(geom = "errorbar", width = 0.3, position = position_dodge(width = 0.75)) +
@@ -651,7 +651,7 @@ Los jugadores de baloncesto y voleibol destacan por registrar las estaturas más
 A continuación vamos a analizar la masa corporal. Mostraremos la distribución del peso para los 8 deportes. La ordenación se mantiene  según la estatura previa para observar si el peso sigue el mimsmo patrón.
 
 ```{r}
-ggplot(obs, aes(x = Sport, y = Weight_imputed, fill = Sex)) +
+ggplot(obs, aes(x = Weight_imputed, y = Sport, fill = Sex)) +
   stat_boxplot(geom = "errorbar", width = 0.3, position = position_dodge(0.75)) +
   geom_boxplot(outlier.size = 0.5, outlier.alpha = 0.3, position = position_dodge(0.75)) +
   coord_flip() + 
@@ -661,6 +661,45 @@ ggplot(obs, aes(x = Sport, y = Weight_imputed, fill = Sex)) +
   theme(legend.position = "bottom")
 ```
 Aunque el peso tiende a aumentar con la estatura, observamos excepciones destacables: en el judo, a pesar de tener estaturas contenidas, el peso mediano se dispara debido a la alta masa muscular.
+
+
+### Evlución de la edad por época
+```{r}
+
+
+# 1. Selección manual equilibrada de 15 deportes (de jóvenes a longevos)
+deportes_edad <- c("Gymnastics", "Swimming", "Athletics", "Rowing", "Cycling", 
+                   "Basketball", "Judo", "Weightlifting", "Football", "Fencing", 
+                   "Sailing", "Shooting", "Equestrianism", "Art Competitions", "Tug-Of-War")
+
+# 2. Filtrado sobre el dataframe con variables imputadas
+edad_obs <- atletas_juegos[atletas_juegos$Sport %in% deportes_edad, ]
+
+# 3. Cálculo de la mediana de edad imputada y recuento por deporte y década
+mediana_edad <- aggregate(Age_imputed ~ Sport + Decada, data = edad_obs, FUN = median)
+n_edad <- aggregate(Age_imputed ~ Sport + Decada, data = edad_obs, FUN = length)
+
+names(mediana_edad)[3] <- "Mediana"
+mediana_edad$n <- n_edad$Age_imputed
+
+# 4. Filtramos combinaciones con al menos 10 atletas para no perder las ediciones antiguas
+mediana_edad <- mediana_edad[mediana_edad$n >= 10, ]
+
+# 5. Reordenamos los deportes según la mediana de edad global
+mediana_edad$Sport <- reorder(mediana_edad$Sport, mediana_edad$Mediana, FUN = median)
+
+# 6. Mapa de calor con ggplot2
+ggplot(mediana_edad, aes(x = factor(Decada), y = Sport, fill = Mediana)) +
+  geom_tile(colour = "white") +
+  geom_text(aes(label = round(Mediana)), size = 2.8) +
+  scale_fill_gradient(low = "#deebf7", high = "#08519c", name = "Edad\nmediana") +
+  labs(title = "Evolución de la Edad Mediana por Deporte y Década",
+       x = "Década", 
+       y = "Deporte") +
+  theme_minimal(base_size = 11) +
+  theme(panel.grid = element_blank())
+```
+
 
 
 ## P3: ¿Quién concentra las medallas?
