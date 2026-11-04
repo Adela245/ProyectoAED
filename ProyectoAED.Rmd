@@ -659,7 +659,7 @@ ggplot(concentracion, aes(x = Decada, y = Cuota_top10)) +
 ```
 
 
-## P4: ¿Cuáles son las características de las carreras olímpicas más exitosas de la historia?
+
 
 ## Aportación adicional
 
