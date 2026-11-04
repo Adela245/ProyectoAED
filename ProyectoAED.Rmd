@@ -477,6 +477,8 @@ sum(is.na((atletas_juegos$Height_imputed))) #NAs en altura post- tercera imputac
 
 
 ```
+
+
 ##### Imputacion del peso 
 ```{r imput-mediana-peso}
 sum(is.na(atletas_juegos$Weight)) #NAs en peso pre-imputación
@@ -505,9 +507,8 @@ atletas_juegos$Weight_imputed <- ifelse(
 
 sum(is.na((atletas_juegos$Weight_imputed))) #NAs en peso post- tercera imputación
 ```
+
 ##### Imputación de edad 
-
-
 ```{r imput-mediana-edad}
 # NAs en edad pre-imputación
 sum(is.na(atletas_juegos$Age))
@@ -579,13 +580,7 @@ muestra$Age_cart <- completos_cart$Age
 muestra$Height_cart <- completos_cart$Height
 muestra$Weight_cart <- completos_cart$Weight
 
-
-
-
-
-
 ```
-
 
 
 
@@ -600,6 +595,112 @@ muestra$Weight_cart <- completos_cart$Weight
 ## P1: quién compite y cómo cambia
 
 ## P2: el cuerpo de cada deporte
+
+Para esta pregunta, sería muy emborroso y tedioso analizar el cuerpo "ideal" de cada deporte ya que son más de 60 los deportes que se juegan en los Juegos Olímpicos. Por ellos hemos hecho una selección de 8 deportes contrastados.
+
+Los deportes seleccionados son baloncesto, gimnasia, natación,halterofilia, atletismo, judo, voleibol, futbol y ciclismo.
+
+A continuación filtramos el dataframe atletas_juegos para quedarnos solo con las filas de los deportes seleccionados.
+
+### Distribución de la Altura por Deporte y Sexo
+```{r}
+deportes_sel <- c("Basketball", "Gymnastics","Weightlifting","Swimming", "Athletics", "Judo", "Volleyball", "Football", "Cycling")
+
+
+obs <- atletas_juegos[atletas_juegos$Sport %in% deportes_sel, ]
+
+#esta linea sirve para que a la hora del ggplot los boxplots aparezcan alineados y escalonados. Convierte la columna Sport en un factor estadístico y ordena sus niveles en función de la mediana de la altura imputada (Height_imputed), de menor a mayor.
+
+obs$Sport <- reorder(obs$Sport, obs$Height_imputed, FUN = median)
+
+```
+
+El objetivo de este gráfico es mostrar la distribución de la altura para 9 deportes, comparando hombres y mujeres lado a lado en cada deporte que hemos escogido.
+
+```{r}
+
+ggplot(obs, aes(x = Sport, y = Height_imputed, fill = Sex))+
+
+#bigotes, barrita horizontal cruzada y ajuste para que no solapen
+stat_boxplot(geom = "errorbar", width = 0.3, position = position_dodge(width = 0.75)) +
+
+#cuerpo del diagrama, transparaencia, aseguramos que las cajas de hombres y mujeres se coloquen una al lado de la otra.
+
+geom_boxplot(outlier.size = 0.5, outlier.alpha = 0.3, position = position_dodge(width = 0.75)) + 
+  
+#invertimos ejes, ahora eje horizontal sera altura y vertical deporte, para que escribir los 10 nombres de los deportes en horizontal podria hacer q se solapen  
+coord_flip() +
+
+#colores
+scale_fill_manual(values = c("F" = "#E69F00", "M" = "#56B4E9"), labels = c("F" = "Mujeres", "M" = "Hombres")) +
+  
+#titulos
+  labs(title = "Distribución de la Altura por Deporte y Sexo",
+       x = "Deporte", 
+       y = "Altura (cm)", 
+       fill = "Sexo") +
+  theme_minimal(base_size = 11) +
+  theme(legend.position = "bottom",
+        panel.grid.minor = element_blank())
+```
+Los jugadores de baloncesto y voleibol destacan por registrar las estaturas más elevadas (con medianas masculinas superiores a los 190 cm). En el extremo opuesto se sitúan los gimnastas, cuya baja estatura favorece la relación fuerza-peso y la ejecución de giros en el aire
+
+
+### Distribución del Peso por Deporte y Sexo.
+
+A continuación vamos a analizar la masa corporal. Mostraremos la distribución del peso para los 8 deportes. La ordenación se mantiene  según la estatura previa para observar si el peso sigue el mimsmo patrón.
+
+```{r}
+ggplot(obs, aes(x = Sport, y = Weight_imputed, fill = Sex)) +
+  stat_boxplot(geom = "errorbar", width = 0.3, position = position_dodge(0.75)) +
+  geom_boxplot(outlier.size = 0.5, outlier.alpha = 0.3, position = position_dodge(0.75)) +
+  coord_flip() + 
+  scale_fill_manual(values = c("F" = "#E69F00", "M" = "#56B4E9"), labels = c("F" = "Mujeres", "M" = "Hombres")) +
+  labs(x = "Deporte", y = "Peso (kg)", fill = "Sexo") + 
+  theme_minimal() +
+  theme(legend.position = "bottom")
+```
+Aunque el peso tiende a aumentar con la estatura, observamos excepciones destacables: en el judo, a pesar de tener estaturas contenidas, el peso mediano se dispara debido a la alta masa muscular.
+
+### Densidad Corporal: IMC Mediano por Deporte
+Para aislar el efecto de la estatura sobre la masa corporal, calculamos el Índice de Masa Corporal (IMC) mediano. Un gráfico de barras permite identificar de forma directa qué disciplinas requieren una mayor densidad corpora
+
+```{r}
+# Calculamos la mediana del IMC por deporte y sexo
+resumen_imc <- aggregate(IMC_imputed ~ Sport + Sex, data = obs, FUN = median)
+
+ggplot(resumen_imc, aes(x = Sport, y = IMC_imputed, fill = Sex)) +
+  geom_col(position = position_dodge(0.75), width = 0.6) +
+  coord_flip() +
+  scale_fill_manual(values = c("F" = "#E69F00", "M" = "#56B4E9"), labels = c("F" = "Mujeres", "M" = "Hombres")) +
+  labs(x = "Deporte", y = "IMC Mediano (kg/m²)", fill = "Sexo") +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+```
+Como era de esperar, la halterofilia encabeza el ranking de IMC mediano en ambos sexos, seguida de disciplinas de contacto/fuerza como el Judo. Por contra, el atletismo y el ciclismo muestran valores de IMC más reducidos para favorecer la eficiencia aeróbica.
+
+### Relación Antropométrica: Altura vs. Peso
+
+
+```{r}
+install.packages("ggrepel")
+library(ggrepel)
+resumen_cuerpo <- aggregate(cbind(Height_imputed, Weight_imputed) ~ Sport + Sex, data = obs, FUN = median)
+
+ggplot(resumen_cuerpo, aes(x = Height_imputed, y = Weight_imputed, color = Sex)) +
+  geom_point(size = 3) +
+  # geom_text_repel desplaza suavemente los nombres para que no se pisen entre sí
+  geom_text_repel(aes(label = Sport), size = 3.2, show.legend = FALSE) +
+  scale_color_manual(values = c("F" = "#E69F00", "M" = "#56B4E9"), labels = c("F" = "Mujeres", "M" = "Hombres")) +
+  labs(title = "Mapa Corporal Mediano: Altura vs. Peso",
+       x = "Altura mediana (cm)", 
+       y = "Peso mediano (kg)", 
+       color = "Sexo") +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+```
+El mapa biótico confirma una fuerte especialización biomecánica: mientras que la mayoría de deportes siguen una tendencia lineal directa donde a mayor estatura corresponde mayor peso (con el baloncesto en el extremo superior y la gimnasia en el inferior), disciplinas como el judo y la halterofilia rompen esta norma al registrar un peso elevado en relación con su estatura contenida, lo que refleja una alta densidad de masa muscular magra y requerimientos de fuerza explosiva.
+
 
 ## P3: ¿Quién concentra las medallas?
 ```{r p3-datos,include=F}
