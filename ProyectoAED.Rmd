@@ -612,6 +612,8 @@ ggplot(dft, aes(x = Valor, fill = Sex)) +
 
 
 ## P1: quién compite y cómo cambia
+
+En primer lugar, realizaremos un análisis del número de atletas y países que participaron en cada edición de los juegos olímpicos. Para ello, graficaremos el total de países y atletas en función de los años en los que se celebraron estos juegos.
 ```{r p1-datos, include= FALSE}
 # Datos con los juegos 
 juegos <- unique(atletas_juegos[,c('Games', 'Year', 'Season')])
@@ -645,6 +647,12 @@ ggplot(datosP1, aes(x = Year, y = Valor, color = Season)) +
   labs(x = "Año", y = "", color = "Estación") + theme_minimal()
 
 ```
+
+Como podemos observar, el número de atletas y países participantes ha ido aumentando a lo largo de los años. Sin embargo, podemos apreciar ciertos detalles interesantes en nuestra gráfica. Por un lado, los juegos en la estación de Invierno han sufrido un crecimiento leve, pero monótono, sin ningún cambio drástico durante los años. En cambio, los juegos de la estación de verano han aumentado su participación, pero con ciertas bajadas en determinados años. Si buscamos información podemos entender estos cambios:
+
+- La primera bajada se puede apreciar en el año 1932. Seguramente, se debe a la crisis de 1929, por la cual muchos atletas no podían permitirse el viaje. Además, esta edición se celebró en Los Ángeles, dificultando el traslado de numerosos atletas. Por estas razones, para no perder representación, muchos países optaron por envíar pequeños grupos. Por ello, el número de países apenas sufrió variación mientras que la cantidad total de atletas cayó a menos de la mitad.
+
+-
 
 ```{r p1-mujeres-heatmap, fig.width=14, fig.height=7}
 
