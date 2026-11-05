@@ -75,17 +75,12 @@ las medallas?
 
 ## Importación y descripción de los datos
 
+Cargamos los datos y hacemos un vistazo general construyendo un sumario.
+
 ```{r datos, include=T, echo = T}
 datos <- read.csv('./data/athlete_events.csv')#cargamos los datos
-#Vistazo general a los datos
-str(datos)
-```
-
-```{r sumario, include=T}
-
 columnas<-colnames(datos)
 sumario<-data.frame()
-
 for (i in seq_along(columnas)){
   sumario[i,1]<- columnas[i]
   sumario[i,2]<- class(datos[,i])
@@ -97,7 +92,6 @@ for (i in seq_along(columnas)){
   sumario[i,7]<- sum(is.na(datos[,i]))
   sumario[i,8]<- sumario[i,7]/ nrow(datos)
 }
-
 colnames(sumario)[1]<- 'variable'
 colnames(sumario)[2]<- 'type'
 colnames(sumario)[3]<- 'levels'
@@ -106,11 +100,9 @@ colnames(sumario)[5] <- 'topCount'
 colnames(sumario)[6] <- 'topFrac'
 colnames(sumario)[7]<- 'missFreq'
 colnames(sumario)[8]<- 'missFrac'
-
 knitr::kable(sumario, row.names = FALSE,
              caption = "Sumario del dataset original")
 
-#Explicar NAN de medallas
 ```
 
 ## Acondicionamiento
