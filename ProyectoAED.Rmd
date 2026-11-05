@@ -722,111 +722,82 @@ grafico_pct_mujeres | grafico_heatmap
 ```
 
 
-## P2: el cuerpo y edad de cada deporte
+## P2: Perfil de cuerpo y evolución de la edad por disciplina deportiva
 
-Para esta pregunta, sería muy emborroso y tedioso analizar el cuerpo "ideal" de cada deporte ya que son más de 60 los deportes que se juegan en los Juegos Olímpicos. Por ellos hemos hecho una selección de 8 deportes contrastados.
+Para estudiar cómo influyen las características físicas en cada disciplina sin saturar el informe, seleccionamos 8 deportes clave: baloncesto, gimnasia, natación, halterofilia, atletismo, judo, voleibol y ciclismo. Escogimos estas disciplinas porque presentan contrastes físicos extremos, incluyen categorías de peso (judo y halterofilia) y cuentan con un gran volumen de datos histórico.
 
-Los deportes seleccionados son baloncesto, gimnasia, natación,halterofilia, atletismo, judo, voleibol y ciclismo.
+```{r p2-biometria-combinada, fig.width=5, fig.height=4, fig.cap="Distribución de la altura (cm) y peso (kg) por deporte y sexo en atletas olímpicos. Los boxplots muestran la mediana, rango intercuartílico y valores atípicos (outliers) identificados."}
 
-A continuación filtramos el dataframe atletas_juegos para quedarnos solo con las filas de los deportes seleccionados.
-
-### Distribución de la Altura por Deporte y Sexo
-```{r}
-deportes_sel <- c("Basketball", "Gymnastics","Weightlifting","Swimming", "Athletics", "Judo", "Volleyball", "Cycling")
-
+# 1. Filtrado y ordenación por mediana de altura
+deportes_sel <- c("Basketball", "Gymnastics", "Weightlifting", "Swimming", 
+                  "Athletics", "Judo", "Volleyball", "Cycling")
 
 obs <- atletas_juegos[atletas_juegos$Sport %in% deportes_sel, ]
-
-#esta linea sirve para que a la hora del ggplot los boxplots aparezcan alineados y escalonados. Convierte la columna Sport en un factor estadístico y ordena sus niveles en función de la mediana de la altura imputada (Height_imputed), de menor a mayor.
-
 obs$Sport <- reorder(obs$Sport, obs$Height_imputed, FUN = median)
 
-```
-
-El objetivo de este gráfico es mostrar la distribución de la altura para 8 deportes, comparando hombres y mujeres lado a lado en cada deporte que hemos escogido.
-
-```{r}
-
-ggplot(obs, aes(x = Height_imputed, y = Sport, fill = Sex))+
-
-#bigotes, barrita horizontal cruzada y ajuste para que no solapen
-stat_boxplot(geom = "errorbar", width = 0.3, position = position_dodge(width = 0.75)) +
-
-#cuerpo del diagrama, transparaencia, aseguramos que las cajas de hombres y mujeres se coloquen una al lado de la otra.
-
-geom_boxplot(outlier.size = 0.5, outlier.alpha = 0.3, position = position_dodge(width = 0.75)) + 
-  
-#invertimos ejes, ahora eje horizontal sera altura y vertical deporte, para que escribir los 10 nombres de los deportes en horizontal podria hacer q se solapen  
-coord_flip() +
-
-#colores
-scale_fill_manual(values = c("F" = "#E69F00", "M" = "#56B4E9"), labels = c("F" = "Mujeres", "M" = "Hombres")) +
-  
-#titulos
-  labs(title = "Distribución de la Altura por Deporte y Sexo",
-       x = "Deporte", 
-       y = "Altura (cm)", 
-       fill = "Sexo") +
-  theme_minimal(base_size = 11) +
-  theme(legend.position = "bottom",
-        panel.grid.minor = element_blank())
-```
-Los jugadores de baloncesto y voleibol destacan por registrar las estaturas más elevadas (con medianas masculinas superiores a los 190 cm). En el extremo opuesto se sitúan los gimnastas, cuya baja estatura favorece la relación fuerza-peso y la ejecución de giros en el aire
-
-
-### Distribución del Peso por Deporte y Sexo.
-
-A continuación vamos a analizar la masa corporal. Mostraremos la distribución del peso para los 8 deportes. La ordenación se mantiene  según la estatura previa para observar si el peso sigue el mimsmo patrón.
-
-```{r}
-ggplot(obs, aes(x = Weight_imputed, y = Sport, fill = Sex)) +
+# 2. Gráfico de Altura
+p_altura <- ggplot(obs, aes(x = Height_imputed, y = Sport, fill = Sex)) +
   stat_boxplot(geom = "errorbar", width = 0.3, position = position_dodge(0.75)) +
-  geom_boxplot(outlier.size = 0.5, outlier.alpha = 0.3, position = position_dodge(0.75)) +
-  coord_flip() + 
-  scale_fill_manual(values = c("F" = "#E69F00", "M" = "#56B4E9"), labels = c("F" = "Mujeres", "M" = "Hombres")) +
-  labs(x = "Deporte", y = "Peso (kg)", fill = "Sexo") + 
-  theme_minimal() +
-  theme(legend.position = "bottom")
+  geom_boxplot(outlier.size = 0.4, outlier.alpha = 0.2, position = position_dodge(0.75)) + 
+  scale_fill_manual(values = c("F" = "#E69F00", "M" = "#56B4E9"), labels = c("Femenino", "Masculino")) +
+  labs(x = "Altura (cm)", y = "", fill = "Sexo") +
+  theme_minimal(base_size = 9) +
+  theme(legend.position = "bottom", panel.grid.minor = element_blank())
+
+# 3. Gráfico de Peso
+p_peso <- ggplot(obs, aes(x = Weight_imputed, y = Sport, fill = Sex)) +
+  stat_boxplot(geom = "errorbar", width = 0.3, position = position_dodge(0.75)) +
+  geom_boxplot(outlier.size = 0.4, outlier.alpha = 0.2, position = position_dodge(0.75)) + 
+  scale_fill_manual(values = c("F" = "#E69F00", "M" = "#56B4E9"), labels = c("Femenino", "Masculino")) +
+  labs(x = "Peso (kg)", y = "", fill = "Sexo") +
+  theme_minimal(base_size = 9) +
+  theme(legend.position = "bottom", 
+        panel.grid.minor = element_blank(),
+        axis.text.y = element_blank())
+
+# 4. Combinación horizontal compacta
+(p_altura + p_peso) + plot_layout(guides = "collect") & theme(legend.position = "bottom")
+
 ```
-Aunque el peso tiende a aumentar con la estatura, observamos excepciones destacables: en el judo, a pesar de tener estaturas contenidas, el peso mediano se dispara debido a la alta masa muscular.
 
+Las características físicas de los atletas cambian claramente según las necesidades de cada deporte y el sexo del participante. El baloncesto y el voleibol tienen los atletas más altos y pesados para llegar mejor a la red y al aro. En cambio, en la gimnasia se buscan estaturas y pesos más bajos, ya que ser más pequeño ayuda a girar más rápido en el aire y mover el propio cuerpo con menos esfuerzo. Por su parte, el judo y la halterofilia muestran pesos muy variados porque incluyen categorías de competición que van desde competidores muy ligeros hasta pesos pesados.
 
-### Evlución de la edad por época
-```{r}
+Llama la atención la gran cantidad de valores extremos (outliers) en el atletismo, tanto en altura como en peso. Esto no se debe a errores en los datos, sino a que el atletismo agrupa pruebas muy diferentes entre sí: por un lado están los lanzadores (de peso o disco), que necesitan mucha masa corporal (superando los 120 kg), y por otro los maratonianos, que son muy delgados para cansarse menos al correr largas distancias. Esta gran variedad de cuerpos en una misma disciplina es lo que genera tantos valores alejados de la media.
 
+Para analizar cómo influye la edad en el rendimiento deportivo a lo largo de la historia, seleccionamos quince disciplinas estratégicas. Elegimos estos deportes específicamente porque cubren todo el abanico de exigencias físicas y tácticas del programa olímpico: desde modalidades dominadas por la alta potencia muscular y la elasticidad como la gimnasia y la natación, hasta disciplinas fundamentadas en la precisión, el control mental y la experiencia como el tiro, la hípica y las competiciones de arte, pasando por deportes de equipo y de resistencia tradicional.
 
-# 1. Selección manual equilibrada de 15 deportes (de jóvenes a longevos)
+```{r p2-mapa-edad, fig.width=5, fig.height=4, fig.cap="Evolución histórica de la edad mediana de los atletas por deporte y década en los Juegos Olímpicos."}
+# Selección de 15 deportes para el análisis temporal de edad
 deportes_edad <- c("Gymnastics", "Swimming", "Athletics", "Rowing", "Cycling", 
                    "Basketball", "Judo", "Weightlifting", "Football", "Fencing", 
                    "Sailing", "Shooting", "Equestrianism", "Art Competitions", "Tug-Of-War")
 
-# 2. Filtrado sobre el dataframe con variables imputadas
 edad_obs <- atletas_juegos[atletas_juegos$Sport %in% deportes_edad, ]
 
-# 3. Cálculo de la mediana de edad imputada y recuento por deporte y década
 mediana_edad <- aggregate(Age_imputed ~ Sport + Decada, data = edad_obs, FUN = median)
 n_edad <- aggregate(Age_imputed ~ Sport + Decada, data = edad_obs, FUN = length)
-
 names(mediana_edad)[3] <- "Mediana"
 mediana_edad$n <- n_edad$Age_imputed
 
-# 4. Filtramos combinaciones con al menos 10 atletas para no perder las ediciones antiguas
+# Filtrar grupos pequeños y reordenar por longevidad
 mediana_edad <- mediana_edad[mediana_edad$n >= 10, ]
-
-# 5. Reordenamos los deportes según la mediana de edad global
 mediana_edad$Sport <- reorder(mediana_edad$Sport, mediana_edad$Mediana, FUN = median)
 
-# 6. Mapa de calor con ggplot2
 ggplot(mediana_edad, aes(x = factor(Decada), y = Sport, fill = Mediana)) +
-  geom_tile(colour = "white") +
-  geom_text(aes(label = round(Mediana)), size = 2.8) +
-  scale_fill_gradient(low = "#deebf7", high = "#08519c", name = "Edad\nmediana") +
-  labs(title = "Evolución de la Edad Mediana por Deporte y Década",
-       x = "Década", 
-       y = "Deporte") +
-  theme_minimal(base_size = 11) +
-  theme(panel.grid = element_blank())
+  geom_tile(colour = "white", linewidth = 0.2) +
+  geom_text(aes(label = round(Mediana)), size = 2.4, color = "black") +
+  scale_fill_gradient(low = "#deebf7", high = "#08519c", name = "Edad mediana") +
+  labs(
+       x = "Década", y = "Deporte") +
+  theme_minimal(base_size = 9) +
+  theme(panel.grid = element_blank(),
+        axis.text.x = element_text(angle = 45, hjust = 1))
 ```
+
+
+Esta figura muestra que la edad media de los atletas depende de las exigencias del deporte y de la época analizada. Por un lado, se observa un fuerte contraste entre condición física y experiencia: deportes que exigen flexibilidad o potencia muscular (como gimnasia o natación) están dominados por jóvenes de entre 18 y 24 años, mientras que disciplinas basadas en la precisión, la estabilidad mental o la técnica (como tiro, hípica o vela) alcanzan edades medianas muy superiores, sobrepasando con frecuencia los 35 o 40 años.
+
+Por otro lado, a partir de los años 90 se aprecia una clara tendencia al aumento de la edad media en deportes como atletismo, natación o remo. Este progresivo envejecimiento competitivo responde a la profesionalización a tiempo completo de los deportistas y a las mejoras en la medicina deportiva.
 
 
 
