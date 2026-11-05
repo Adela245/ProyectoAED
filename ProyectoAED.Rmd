@@ -157,7 +157,6 @@ tener una primera visualización sobre los datos y cómo se comportan.
 variables <- c("Age", "Height", "Weight")
 nombres <- c("Edad (años)", "Altura (cm)", "Peso (kg)")
 dft <- data.frame()
-
 for (i in 1:3) {
   tabla <- data.frame(
     Variable = nombres[i],
@@ -165,12 +164,10 @@ for (i in 1:3) {
   )
   dft <- rbind(dft, tabla)
 }
-
 dft$Variable <- factor(dft$Variable, levels = nombres)
-
-# Ploteo estrictamente univariante (un solo color global)
+# Ploteo 
 ggplot(dft, aes(x = Valor)) +
-  geom_histogram(bins = 40, fill = "steelblue", color = "white", alpha = 0.8) +
+  geom_histogram(bins = 40, fill = "orange", alpha = 0.8) +
   facet_wrap(~ Variable, scales = "free") +
   labs(x = "", y = "Frecuencia") + theme_minimal()
 ```
