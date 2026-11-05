@@ -621,7 +621,7 @@ muestra$Weight_cart <- completos_cart$Weight
 ## P1: quién compite y cómo cambia
 
 En primer lugar, realizaremos un análisis del número de atletas y países que participaron en cada edición de los juegos olímpicos. Para ello, graficaremos el total de países y atletas en función de los años en los que se celebraron estos juegos.
-```{r p1-datos, include= FALSE}
+```{r p1-datos, fig.width=14, fig.height=7}
 # Datos con los juegos 
 juegos <- unique(atletas_juegos[,c('Games', 'Year', 'Season')])
 juegos <- juegos[order(juegos$Year), ]
