@@ -172,7 +172,15 @@ ggplot(dft, aes(x = Valor)) +
   labs(x = "", y = "Frecuencia") + theme_minimal()
 ```
 
-En cuanto a la Edad, la variable presenta una asimetría positiva con una mayor densidad entre los 20 y 28 años y un pico pronunciado alrededor de los 23-25 años. Además, podemos observar una caída a partir de los 30 años pero conservando una cola derecha que llega hasta los 50-70 años. Por otro lado, la Altura parece presentar un comportamiento gaussiano, donde media y mediana convergen cerca de los 175-178 cm. Finalmente, el Peso vuelve a mostrar una distribución sesgada a la derecha agrupando las principales frecuencias entre los 60 y 80 kg y también, con una cola alargada que supera los 120-150 kg.
+En cuanto a la Edad, la variable presenta una asimetría positiva con una
+mayor densidad entre los 20 y 28 años y un pico pronunciado alrededor de
+los 23-25 años. Además, podemos observar una caída a partir de los 30
+años pero conservando una cola derecha que llega hasta los 50-70 años.
+Por otro lado, la Altura parece presentar un comportamiento gaussiano,
+donde media y mediana convergen cerca de los 175-178 cm. Finalmente, el
+Peso vuelve a mostrar una distribución sesgada a la derecha agrupando
+las principales frecuencias entre los 60 y 80 kg y también, con una cola
+alargada que supera los 120-150 kg.
 
 ### Análisis bivariante
 
@@ -197,26 +205,27 @@ Los diagramas de caja comparan la altura y el peso según el sexo. En
 ellos podemos observar la mediana, el rango intercuartílico y los
 valores atípicos de cada grupo, y comparar de forma directa a hombres y
 mujeres. Estos gráficos los hemos construido con los datos originales,
-por lo que todavía incluyen todas las filas del conjunto. Cabe destacar el enorme número de outliers, que se debe a la gran variedad de deportes que tenemos. Esto se analizará con más detalle en la pregunta 2, ya que las distintas pruebas requieren distintos perfiles físicos.
+por lo que todavía incluyen todas las filas del conjunto. Cabe destacar
+el enorme número de outliers, que se debe a la gran variedad de deportes
+que tenemos. Esto se analizará con más detalle en la pregunta 2, ya que
+las distintas pruebas requieren distintos perfiles físicos.
 
 # Calidad
 
+A lo largo de esta sección, analizamos los datos faltantes (*NA*) y los
+*outliers*.
+
 ## Perdidos
 
+Tras obtener los resultados del sumario, podemos ver que los datos
+faltantes se concentran en las variables numéricas: *Edad*, *Altura* y
+*Peso.*
+
+A continuación, estudiamos la evolución de *NA* con el paso de los años:
+
 ```{r, include=T}
-colSums(is.na(datos)) #tras los cambios de acondicionamiento vemos que hay disminuido los NaN en las columnas
-
-
-```
-
-```{r, include=T}
-#evolucion de los Nans por año para ver si han disminuid con el paso del tiempo 
-
 cols <- c('Age', 'Height', 'Weight')
-
-# creo tabla vacía
 perd_anio <- data.frame()
-
 for (v in cols) {
   porcentaje <- tapply(is.na(datos[[v]]), datos$Year, mean) * 100
   tabla <- data.frame(Year = as.numeric(names(porcentaje)),
@@ -224,18 +233,25 @@ for (v in cols) {
                       Porcentaje = as.numeric(porcentaje))
   perd_anio <- rbind(perd_anio, tabla)
 }
-
-#ggplot
-
-ggplot(perd_anio, aes(x = Year, y = Porcentaje, color = Variable, shape = Variable)) +
+perd_anio$Variable <- factor(perd_anio$Variable, 
+                             levels = c('Age', 'Height', 'Weight'), 
+                             labels = c('Edad', 'Altura', 'Peso'))
+ggplot(perd_anio, aes(x = Year, y = Porcentaje, color = Variable, shape = Variable, linetype = Variable)) +
   geom_line() +
   geom_point() +
-  labs(title = 'Evolución de los datos perdidos por año',
-       x = 'Año',
-       y = '% de datos perdidos') +
+  scale_linetype_manual(values = c('Edad' = 'solid', 'Altura' = 'solid', 'Peso' = 'dotted')) +
+  labs(
+    x = 'Año',
+    y = '% de datos perdidos',
+       color = 'Variable',
+       shape = 'Variable',
+       linetype = 'Variable') +
   ylim(0, 100)
-
 ```
+
+Podemos comprobar que la mayoría de datos perdidos se concentran en las
+décadas iniciales, con una clara tendencia decreciente con el paso del
+tiempo.
 
 ## Outliers
 
@@ -518,16 +534,15 @@ juegos de la estación de verano han aumentado su participación, pero con
 ciertas bajadas en determinados años. Si buscamos información podemos
 entender estos cambios:
 
--   La primera bajada se puede apreciar en el año 1932. Seguramente, se
-    debe a la crisis de 1929, por la cual muchos atletas no podían
-    permitirse el viaje. Además, esta edición se celebró en Los Ángeles,
-    dificultando el traslado de numerosos atletas. Por estas razones,
-    para no perder representación, muchos países optaron por envíar
-    pequeños grupos. Por ello, el número de países apenas sufrió
-    variación mientras que la cantidad total de atletas cayó a menos de
-    la mitad.
+- La primera bajada se puede apreciar en el año 1932. Seguramente, se
+  debe a la crisis de 1929, por la cual muchos atletas no podían
+  permitirse el viaje. Además, esta edición se celebró en Los Ángeles,
+  dificultando el traslado de numerosos atletas. Por estas razones, para
+  no perder representación, muchos países optaron por envíar pequeños
+  grupos. Por ello, el número de países apenas sufrió variación mientras
+  que la cantidad total de atletas cayó a menos de la mitad.
 
--   
+- 
 
 ```{r p1-mujeres-heatmap, fig.width=14, fig.height=7, include=T}
 
