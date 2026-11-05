@@ -274,9 +274,8 @@ resultado_outliers <- rbind(detectar_outliers(atletas_juegos$Height, "Altura"),d
 resultado_outliers
 
 ```
-
 En la tabla, `n` es el número de datos no perdidos y `nOut` el de
-atípicos detectados.
+atípicos detectados. Al analizar la tabla, la regla de las 3 sigmas resulta ser la más permisiva, debido a que los propios valores extremos inflan la media y la desviación típica. El filtro de Hampel arroja cifras similares pero ligeramente superiores al usar métricas robustas. En cambio, el método del Boxplot es el más restrictivo, detectando hasta un 3% de outliers en Edad y casi un 2% en Peso.
 
 Sin embargo, un valor extremo no es necesariamente un error. Un jugador
 de baloncesto muy alto o un lanzador muy pesado son valores extremos si
