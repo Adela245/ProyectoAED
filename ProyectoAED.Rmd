@@ -37,7 +37,7 @@ editor_options:
     wrap: 72
 ---
 
-```{r setup, echo = FALSE, include = False}
+```{r setup, echo = FALSE, include = FALSR}
 knitr::opts_chunk$set(echo = T, warning = FALSE, message = FALSE,fig.width = 5, fig.height = 4, fig.align = "center")
 p <- c("tidyverse", "skimr", "naniar", "janitor", "here", "ggplot2", "mice", "patchwork")
 if (length(f <- setdiff(p, rownames(installed.packages())))) install.packages(f)
@@ -199,10 +199,10 @@ ggplot(largo, aes(x = Sex, y = Valor, fill = Sex)) +
 ```
 
 Los diagramas de caja comparan la altura y el peso según el sexo. En
-ellos se observa la mediana, el rango intercuartílico y los valores
-atípicos de cada grupo, y permiten comparar de forma directa a hombres y
-mujeres. Estos gráficos se han construido con los datos originales, por
-lo que todavía incluyen todas las filas del conjunto.
+ellos podemos observar la mediana, el rango intercuartílico y los
+valores atípicos de cada grupo, y comparar de forma directa a hombres y
+mujeres. Estos gráficos los hemos construido con los datos originales,
+por lo que todavía incluyen todas las filas del conjunto.
 
 # Calidad
 
