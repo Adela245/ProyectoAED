@@ -29,6 +29,8 @@ endnotes: false
 header-includes:
   - \newcommand{\pandocbounded}[1]{#1}
   - \newcounter{none}
+  - \usepackage{etoolbox}
+  - \AtBeginEnvironment{Shaded}{\scriptsize}
 output: 
   rticles::mdpi_article:
     extra_dependencies: longtable
@@ -331,158 +333,56 @@ atletas_juegos$IMC[outliers_imc]    <- NA
 ```
 
 ## Imputación
+Durante este apartado llevaremos a cabo la imputación de los datos faltantes. Emplearemos el método de la mediana, ya que el método KNN es inviable por el elevado número de instancias en nuestros datos. 
 
 ### Método de la mediana
 
-```{r atletas-juegos, include=T}
+Hemos decidido emplear este método mediante una imputación de casos similares. Iniciaremos la imputación en el caso más restrictivo: para los casos con datos faltantes, hemos calculado la mediana de las instancias que coinciden en sexo, deporte y año de participación. Progresivamente, reduciremos el nivel de restricción: una segunda imputación donde coincida sexo y deporte; una tercera impitación donde coincida sexo. Esto lo realizaremos para las columnas Altura, Peso y Edad
 
-#Creamos df: atletas juegos para no repetir datos de una persona repetidas veces si tiene varias participaciones en los mismos juegos
+#### Imputacion de la altura, peso y edad.
 
-atletas_juegos <- datos[!duplicated(datos[, c("ID", "Games")]), ]
-
-
-
-#Weissmuller
-
-```
-
-#### Imputacion de la altura
-
-```{r imput-mediana-altura, include=T}
-sum(is.na(atletas_juegos$Height)) #NAs en altura pre-imputación
-
-#Imputación 1
-atletas_juegos$Height_imputed <- ifelse(
-  is.na(atletas_juegos$Height),
-  ave(atletas_juegos$Height, atletas_juegos$Sex, atletas_juegos$Sport, atletas_juegos$Year, FUN = function(x) median(x, na.rm = TRUE)),atletas_juegos$Height)
+```{r imputaciones, include=TRUE}
+variables <- c("Height", "Weight", "Age")
+# Bucle para imputar cada variable paso a paso
+for (var in variables) {
+  var_imp <- paste0(var, "_imputed")
+  atletas_juegos[[var_imp]] <- atletas_juegos[[var]]
   
-
-sum(is.na((atletas_juegos$Height_imputed))) #NAs en altura post- primera imputación
-
-
-#Imputación 2
-atletas_juegos$Height_imputed <- ifelse(
-  is.na(atletas_juegos$Height_imputed),
-  ave(atletas_juegos$Height, atletas_juegos$Sex, atletas_juegos$Sport,  FUN = function(x) median(x, na.rm = TRUE)),atletas_juegos$Height_imputed)
-
-sum(is.na((atletas_juegos$Height_imputed))) #NAs en altura post- segunda imputación
-
-
-#Imputación 3
-atletas_juegos$Height_imputed <- ifelse(
-  is.na(atletas_juegos$Height_imputed),
-  ave(atletas_juegos$Height, atletas_juegos$Sex,  FUN = function(x) median(x, na.rm = TRUE)),atletas_juegos$Height_imputed)
-
-sum(is.na((atletas_juegos$Height_imputed))) #NAs en altura post- tercera imputación
-
-
-```
-
-#### Imputacion del peso
-
-```{r imput-mediana-peso, include=T}
-sum(is.na(atletas_juegos$Weight)) #NAs en peso pre-imputación
-
-#Imputación 1
-atletas_juegos$Weight_imputed <- ifelse(
-  is.na(atletas_juegos$Weight),
-  ave(atletas_juegos$Weight, atletas_juegos$Sex, atletas_juegos$Sport, atletas_juegos$Year, FUN = function(x) median(x, na.rm = TRUE)),atletas_juegos$Weight)
+  # Imputación 1: Por Sexo, Deporte y Año
+  atletas_juegos[[var_imp]] <- ifelse(
+    is.na(atletas_juegos[[var_imp]]),
+    ave(atletas_juegos[[var]], atletas_juegos$Sex, atletas_juegos$Sport, atletas_juegos$Year, 
+        FUN = function(x) round(median(x, na.rm = TRUE))),
+    atletas_juegos[[var_imp]]
+  )
   
+  # Imputación 2: Por Sexo y Deporte.
+  atletas_juegos[[var_imp]] <- ifelse(
+    is.na(atletas_juegos[[var_imp]]),
+    ave(atletas_juegos[[var]], atletas_juegos$Sex, atletas_juegos$Sport, 
+        FUN = function(x) round(median(x, na.rm = TRUE))),
+    atletas_juegos[[var_imp]]
+  )
+  
+  # Imputación 3: Solo por Sexo 
+  atletas_juegos[[var_imp]] <- ifelse(
+    is.na(atletas_juegos[[var_imp]]),
+    ave(atletas_juegos[[var]], atletas_juegos$Sex, 
+        FUN = function(x) round(median(x, na.rm = TRUE))),
+    atletas_juegos[[var_imp]]
+  )
 
-sum(is.na((atletas_juegos$Weight_imputed))) #NAs en peso post- primera imputación
+}
 
-
-#Imputación 2
-atletas_juegos$Weight_imputed <- ifelse(
-  is.na(atletas_juegos$Weight_imputed),
-  ave(atletas_juegos$Weight, atletas_juegos$Sex, atletas_juegos$Sport,  FUN = function(x) median(x, na.rm = TRUE)),atletas_juegos$Weight_imputed)
-
-sum(is.na((atletas_juegos$Weight_imputed))) #NAs en peso post- segunda imputación
-
-
-#Imputación 3
-atletas_juegos$Weight_imputed <- ifelse(
-  is.na(atletas_juegos$Weight_imputed),
-  ave(atletas_juegos$Weight, atletas_juegos$Sex,  FUN = function(x) median(x, na.rm = TRUE)),atletas_juegos$Weight_imputed)
-
-sum(is.na((atletas_juegos$Weight_imputed))) #NAs en peso post- tercera imputación
 ```
 
-#### Imputación de edad
-
-```{r imput-mediana-edad, include=T}
-# NAs en edad pre-imputación
-sum(is.na(atletas_juegos$Age))
-
-# Imputación 1
-atletas_juegos$Age_imputed <- ifelse(
-  is.na(atletas_juegos$Age),
-  ave(atletas_juegos$Age, atletas_juegos$Sex, atletas_juegos$Sport, atletas_juegos$Year, FUN = function(x) round(median(x, na.rm = TRUE))),
-  atletas_juegos$Age
-)
-
-# NAs en edad post-primera imputación
-sum(is.na(atletas_juegos$Age_imputed))
-
-# Imputación 2
-atletas_juegos$Age_imputed <- ifelse(
-  is.na(atletas_juegos$Age_imputed),
-  ave(atletas_juegos$Age, atletas_juegos$Sex, atletas_juegos$Sport, FUN = function(x) round(median(x, na.rm = TRUE))),
-  atletas_juegos$Age_imputed
-)
-
-
-# NAs en edad post- segunda imputación
-sum(is.na(atletas_juegos$Age_imputed))
-
-
-# Imputación 3
-atletas_juegos$Age_imputed <- ifelse(
-  is.na(atletas_juegos$Age_imputed),
-  ave(atletas_juegos$Age, atletas_juegos$Sex, FUN = function(x) round(median(x, na.rm = TRUE))),
-  atletas_juegos$Age_imputed
-)
-
-# NAs en edad post- tercera imputación
-sum(is.na(atletas_juegos$Age_imputed))
-```
-
-```{r IMC-imputed, include=T}
+```{r IMC-imputed, include=F}
 
 #Recalculamos IMC con las variables imputadas
 atletas_juegos$IMC_imputed <- atletas_juegos$Weight_imputed / (atletas_juegos$Height_imputed / 100)^2
 
 ```
 
-### Usando librería MICE
-
-```{r imput-mice, include=T}
-
-#semilla para poder repetir el experimento
-set.seed(123)
-#seleccionamos una muestra del df
-muestra <- atletas_juegos[sample(nrow(atletas_juegos), 20000), ]
-
-datos_mice <- muestra[, c("Sex", "Age", "Height", "Weight", "Decada")]
-datos_mice$Sex <- as.factor(datos_mice$Sex)
-
-
-#METODO PMM
-imputacion_pmm <- mice(datos_mice, m = 1, maxit = 5, method = "pmm", seed = 123, printFlag = FALSE)
-completos_pmm <- complete(imputacion_pmm)
-muestra$Age_mice <- completos_pmm$Age
-muestra$Height_mice <- completos_pmm$Height
-muestra$Weight_mice <- completos_pmm$Weight
-
-
-#METODO CART
-imputacion_cart <- mice(datos_mice, m = 1, maxit = 5, method = "cart", seed = 123, printFlag = FALSE)
-completos_cart <- complete(imputacion_cart)
-muestra$Age_cart <- completos_cart$Age
-muestra$Height_cart <- completos_cart$Height
-muestra$Weight_cart <- completos_cart$Weight
-
-```
 
 # Resultados (preguntas de investigación)
 
