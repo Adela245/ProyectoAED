@@ -79,30 +79,17 @@ Cargamos los datos y hacemos un vistazo general construyendo un sumario.
 
 ```{r datos, include=T, echo = T}
 datos <- read.csv('./data/athlete_events.csv')#cargamos los datos
-columnas<-colnames(datos)
-sumario<-data.frame()
-for (i in seq_along(columnas)){
-  sumario[i,1]<- columnas[i]
-  sumario[i,2]<- class(datos[,i])
-  sumario[i,3]<- length(unique(datos[,i]))
-  tabla_freq <- table(datos[, i])
-  sumario[i, 4] <- names(which.max(tabla_freq))
-  sumario[i, 5] <- max(tabla_freq)
-  sumario[i, 6] <-  sumario[i,5]/ nrow(datos)
-  sumario[i,7]<- sum(is.na(datos[,i]))
-  sumario[i,8]<- sumario[i,7]/ nrow(datos)
-}
-colnames(sumario)[1]<- 'variable'
-colnames(sumario)[2]<- 'type'
-colnames(sumario)[3]<- 'levels'
-colnames(sumario)[4] <- 'topLevel'
-colnames(sumario)[5] <- 'topCount'
-colnames(sumario)[6] <- 'topFrac'
-colnames(sumario)[7]<- 'missFreq'
-colnames(sumario)[8]<- 'missFrac'
-knitr::kable(sumario, row.names = FALSE,
-             caption = "Sumario del dataset original")
+# Realizamos un sumario para visualizar los datos
+sumario <- data.frame(variable = colnames(datos))
+sumario$type     <- sapply(datos, function(x) class(x)[1])
+sumario$levels   <- sapply(datos, function(x) length(unique(x)))
+sumario$topLevel <- sapply(datos, function(x) names(which.max(table(x))))
+sumario$topCount <- sapply(datos, function(x) max(table(x)))
+sumario$topFrac  <- sumario$topCount / nrow(datos)
+sumario$missFreq <- sapply(datos, function(x) sum(is.na(x)))
+sumario$missFrac <- sumario$missFreq / nrow(datos)
 
+knitr::kable(sumario, row.names = FALSE, caption = "Sumario del dataset original")
 ```
 
 ## Acondicionamiento
