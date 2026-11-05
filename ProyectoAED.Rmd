@@ -132,6 +132,7 @@ abbreviations:
 endnotes: false
 header-includes:
   - \newcommand{\pandocbounded}[1]{#1}
+  - \newcounter{none}
 output: 
   rticles::mdpi_article:
     extra_dependencies: longtable
@@ -139,8 +140,8 @@ editor_options:
   markdown: 
     wrap: 72
 ---
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE,fig.width = 6, fig.height = 3.5, fig.align = "center")
+```{r setup, include=T, echo = T}
+knitr::opts_chunk$set(echo = T, warning = FALSE, message = FALSE,fig.width = 6, fig.height = 3.5, fig.align = "center")
 library(ggplot2)
 library(naniar)
 library(mice)
@@ -154,11 +155,11 @@ library(patchwork)
 
 # Introducción
 
-# Materiales y métodos
+# Datos y exploración inicial
 
-## Datos
+## Importación y descripción de los datos 
 
-```{r datos, include=FALSE}
+```{r datos, include=T, echo = T}
 
 datos <- read.csv('./data/athlete_events.csv')
 n_filas_originales <- nrow(datos)
@@ -179,7 +180,7 @@ str(datos)
 ```
 
 
-```{r sumario}
+```{r sumario, include=T}
 
 columnas<-colnames(datos)
 sumario<-data.frame()
@@ -212,16 +213,9 @@ knitr::kable(sumario, row.names = FALSE,
 ```
 
 
-
-```{r}
-skim(datos) # Vemos los datos faltantes, el mínimo y el máximo de cada columna
-
-
-```
-
 ## Acondicionamiento
 
-```{r}
+```{r, include=T}
 #
 datos <- unique(datos)
 sum(duplicated(datos)) # comprobar que no hay duplicados
@@ -230,27 +224,27 @@ sum(duplicated(datos)) # comprobar que no hay duplicados
 
 datos[is.na(datos$Medal),'Medal'] <- 'NM'
 
+#añadimos la columna IMC, variable auxiliar
+datos$IMC <- datos$Weight / (datos$Height / 100)^2
 
-# Dos nuevos dataframes para contestar las preguntas
+
+# Tres nuevos dataframes para contestar las preguntas
 # Nos quedamos solo con las filas donde hubo medalla
 medallas <- datos[datos$Medal != 'NM', ]
 
 # Quitamos las repeticiones de juegos por equipo
 medallero <- unique(medallas[, c('Games','Year', 'Event', 'NOC', 'Medal')])
 
+
+
+atletas_juegos <- datos[!duplicated(datos[, c("ID", "Games")]), ]
+
+
+
 # Nos creamos columnas para posteriores analisis
 datos$Decada <- floor(datos$Year / 10) *10
 medallero$Decada <- floor(medallero$Year / 10) *10
-
 ```
-
-```{r}
-#añadimos la columna IMC, variable auxiliar
-datos$IMC <- datos$Weight / (datos$Height / 100)^2
-```
-
-
-
 Comprobamos posibles valores erróneos usando el IMC:
 ```{r}
 
@@ -273,22 +267,60 @@ datos$IMC[outliers_imc]    <- NA
 
 ```
 
+## Exploración inicial
+### Análisis univariante
 
 
+```{r histogramas, include=T}
+#histograma de cada variable numérica
+variables <- c("Age", "Height", "Weight", "IMC")
+nombres <- c("Edad (años)", "Altura (cm)", "Peso (kg)", "IMC")
+dft<- data.frame()
+for (i in 1:4) {
+  tabla <- data.frame(Sex = atletas_juegos$Sex, Variable = nombres[i],
+                      Valor = atletas_juegos[[variables[i]]])
+  dft <- rbind(dft, tabla)
+}
+dft$Variable <- factor(dft$Variable, levels = nombres)
+ggplot(dft, aes(x = Valor, fill = Sex)) +
+  geom_histogram(bins = 40, alpha = 0.6, position = "identity") +
+  facet_wrap(~ Variable, scales = "free") +
+  labs(x = "", y = "Frecuencia", fill = "Sexo") + theme_minimal()
+```
+
+### Análisis bivariante
+
+```{r, include=T}
+largo <- data.frame()
+ 
+for (v in c('Height', 'Weight')) {
+  tabla <- data.frame(Sex = datos$Sex,
+                      Variable = ifelse(v == 'Height', 'Altura (cm)', 'Peso (kg)'),
+                      Valor = datos[[v]])
+  largo <- rbind(largo, tabla)
+}
+ 
+ggplot(largo, aes(x = Sex, y = Valor)) +
+  stat_boxplot(geom = 'errorbar', width = 0.3) +
+  geom_boxplot(outlier.size = 0.5, outlier.alpha = 0.05) +
+  facet_wrap(~ Variable, scales = 'free_y') +
+  labs(title = 'Altura y peso por sexo',
+       x = 'Sexo', y = 'Valor') 
+```
+
+# Calidad
 
 
-## Perdidos, outliers e imputación
+## Perdidos
 
-### Perdidos
-
-```{r}
+```{r, include=T}
 colSums(is.na(datos)) #tras los cambios de acondicionamiento vemos que hay disminuido los NaN en las columnas
 
 
 ```
 
 
-```{r}
+```{r, include=T}
 #evolucion de los Nans por año para ver si han disminuid con el paso del tiempo 
 
 cols <- c('Age', 'Height', 'Weight')
@@ -304,8 +336,6 @@ for (v in cols) {
   perd_anio <- rbind(perd_anio, tabla)
 }
 
-
-
 #ggplot
 library(ggplot2)
 ggplot(perd_anio, aes(x = Year, y = Porcentaje, color = Variable, shape = Variable)) +
@@ -318,42 +348,14 @@ ggplot(perd_anio, aes(x = Year, y = Porcentaje, color = Variable, shape = Variab
 
 ```
 
-### Outliers
-
-```{r}
-largo <- data.frame()
- 
-for (v in c('Height', 'Weight')) {
-  tabla <- data.frame(Sex = datos$Sex,
-                      Variable = ifelse(v == 'Height', 'Altura (cm)', 'Peso (kg)'),
-                      Valor = datos[[v]])
-  largo <- rbind(largo, tabla)
-}
- 
-ggplot(largo, aes(x = Sex, y = Valor)) +
-  stat_boxplot(geom = 'errorbar', width = 0.3) +
-  geom_boxplot(outlier.size = 0.5, outlier.alpha = 0.05) +
-  facet_wrap(~ Variable, scales = 'free_y') +
-  labs(title = 'Altura y peso por sexo',
-       x = 'Sexo', y = 'Valor')
-```
-
-```{r}
-#OPCIONALISIMO ALURA Y SEXO PARA ALGUNOS DEPORTES
-
-sub <- datos[datos$Sport %in% c('Basketball', 'Gymnastics', 'Weightlifting', 'Swimming'), ]
- 
-ggplot(sub, aes(x = Sport, y = Height, fill = Sex)) +
-  stat_boxplot(geom = 'errorbar', width = 0.3,
-               position = position_dodge(width = 0.75)) +
-  geom_boxplot(outlier.size = 0.5, outlier.alpha = 0.3,
-               position = position_dodge(width = 0.75)) +
-  labs(title = 'Altura por deporte y sexo',
-       x = 'Deporte', y = 'Altura (cm)')
-```
+## Outliers
 
 
-```{r outliers-metodos, include = FALSE }
+
+
+
+
+```{r outliers-metodos, include = T }
 #MÉTODOS DE IDENTIFIACIÓN DE OUTLIERS Y TABLA RESUMEN
 # n = total de datos
 # nMiss = los valores perdidos
@@ -399,7 +401,7 @@ resultado_outliers <- rbind(detectar_outliers(datos$Height, "Altura"),
 
 ```
 
-```{r}
+```{r, include=T}
 
 #OUTLIERS POR DEPORTE 
 marcas_outliers <- data.frame(Altura = rep(FALSE, nrow(datos)),
@@ -427,10 +429,10 @@ deportes_edad_extrema
 ```
 
 
-### Imputación
-#### Método de la mediana
+## Imputación
+### Método de la mediana
 
-```{r atletas-juegos}
+```{r atletas-juegos, include=T}
 
 #Creamos df: atletas juegos para no repetir datos de una persona repetidas veces si tiene varias participaciones en los mismos juegos
 
@@ -446,9 +448,9 @@ atletas_juegos <- datos[!duplicated(datos[, c("ID", "Games")]), ]
 
 
 
-##### Imputacion de la altura 
+#### Imputacion de la altura 
 
-```{r imput-mediana-altura}
+```{r imput-mediana-altura, include=T}
 sum(is.na(atletas_juegos$Height)) #NAs en altura pre-imputación
 
 #Imputación 1
@@ -479,8 +481,8 @@ sum(is.na((atletas_juegos$Height_imputed))) #NAs en altura post- tercera imputac
 ```
 
 
-##### Imputacion del peso 
-```{r imput-mediana-peso}
+#### Imputacion del peso 
+```{r imput-mediana-peso, include=T}
 sum(is.na(atletas_juegos$Weight)) #NAs en peso pre-imputación
 
 #Imputación 1
@@ -508,8 +510,8 @@ atletas_juegos$Weight_imputed <- ifelse(
 sum(is.na((atletas_juegos$Weight_imputed))) #NAs en peso post- tercera imputación
 ```
 
-##### Imputación de edad 
-```{r imput-mediana-edad}
+#### Imputación de edad 
+```{r imput-mediana-edad, include=T}
 # NAs en edad pre-imputación
 sum(is.na(atletas_juegos$Age))
 
@@ -545,7 +547,8 @@ atletas_juegos$Age_imputed <- ifelse(
 # NAs en edad post- tercera imputación
 sum(is.na(atletas_juegos$Age_imputed))
 ```
-```{r IMC-imputed}
+
+```{r IMC-imputed, include=T}
 
 #Recalculamos IMC con las variables imputadas
 atletas_juegos$IMC_imputed <- atletas_juegos$Weight_imputed / (atletas_juegos$Height_imputed / 100)^2
@@ -553,8 +556,8 @@ atletas_juegos$IMC_imputed <- atletas_juegos$Weight_imputed / (atletas_juegos$He
 ```
 
 
-#### Usando librería MICE
-```{r imput-mice}
+### Usando librería MICE
+```{r imput-mice, include=T}
 
 #semilla para poder repetir el experimento
 set.seed(123)
@@ -586,35 +589,18 @@ muestra$Weight_cart <- completos_cart$Weight
 
 
 
-# Resultados
+# Resultados (preguntas de investigación)
 
-## Calidad de los datos
 
-## Análisis univariante
-```{r histogramas, include=FALSE}
 
-#histograma de cada variable numérica
-variables <- c("Age", "Height", "Weight", "IMC")
-nombres <- c("Edad (años)", "Altura (cm)", "Peso (kg)", "IMC")
-dft<- data.frame()
-for (i in 1:4) {
-  tabla <- data.frame(Sex = atletas_juegos$Sex, Variable = nombres[i],
-                      Valor = atletas_juegos[[variables[i]]])
-  dft <- rbind(dft, tabla)
-}
-dft$Variable <- factor(dft$Variable, levels = nombres)
-ggplot(dft, aes(x = Valor, fill = Sex)) +
-  geom_histogram(bins = 40, alpha = 0.6, position = "identity") +
-  facet_wrap(~ Variable, scales = "free") +
-  labs(x = "", y = "Frecuencia", fill = "Sexo") + theme_minimal()
-```
+
 
 
 
 ## P1: quién compite y cómo cambia
 
 En primer lugar, realizaremos un análisis del número de atletas y países que participaron en cada edición de los juegos olímpicos. Para ello, graficaremos el total de países y atletas en función de los años en los que se celebraron estos juegos.
-```{r p1-datos, include= FALSE}
+```{r p1-datos, fig.width=14, fig.height=7,, include=T}
 # Datos con los juegos 
 juegos <- unique(atletas_juegos[,c('Games', 'Year', 'Season')])
 juegos <- juegos[order(juegos$Year), ]
@@ -654,7 +640,7 @@ Como podemos observar, el número de atletas y países participantes ha ido aume
 
 -
 
-```{r p1-mujeres-heatmap, fig.width=14, fig.height=7}
+```{r p1-mujeres-heatmap, fig.width=14, fig.height=7, include=T}
 
 #  % Global de mujeres agrupado por DÉCADA
 grafico_pct_mujeres <- atletas_juegos %>%
@@ -720,7 +706,6 @@ grafico_heatmap <- atletas_juegos %>%
 # Ploteamos juntos
 grafico_pct_mujeres | grafico_heatmap
 ```
-
 
 ## P2: Perfil de cuerpo y evolución de la edad por disciplina deportiva
 
@@ -801,8 +786,9 @@ Por otro lado, a partir de los años 90 se aprecia una clara tendencia al aument
 
 
 
+
 ## P3: ¿Quién concentra las medallas?
-```{r p3-datos,include=F}
+```{r p3-datos,include=T}
 #En esta sección trabajaremos sobre todo con el df medallero
 
 #Asignamos Equipo Unificado de 1992 a la URSS
@@ -819,44 +805,64 @@ top10 <- names(medallas_pais)[1:10]
 #graficamos el top 10 por tipo de medalla
 sub <- medallero[medallero$NOC %in% top10, ] #guardamos los registros del top 10
 sub$NOC <- factor(sub$NOC, levels = rev(top10)) #convertimos a factor
-sub$Medal <- factor(sub$Medal, levels = c("Bronze", "Silver", "Gold")) #convertimos a factor y ordenamos
+sub$Medal <- factor(sub$Medal, levels = c("Bronze", "Silver", "Gold"), labels = c("Bronce", "Plata", "Oro")) #convertimos a factor y ordenamos
 
 #finalmente ploteamos
 ggplot(sub, aes(x = NOC, fill = Medal)) +
   geom_bar() + coord_flip() +
-  scale_fill_manual(values = c(Gold = "gold", Silver = "grey70", Bronze = "#CD7F32")) +
-  labs(x = "País", y = "Medallas", fill = "Medalla") 
+  scale_fill_manual(values = c(Oro = "gold", Plata = "grey70", Bronce = "#CD7F32")) +
+  labs(x = "País", y = "Medallas", fill = "Medalla") +
+  theme_minimal()
 
 ```
 
-```{r p3- concentracion}
 
-#creamos vector de cada decada
-decadas <- sort(unique(medallero$Decada))
+```{r p3-ranking medallero individual}
+ranking_oficial <- medallas %>%
+  group_by(Name) %>%
+  summarise(
+    Total  = n(),
+    Oro    = sum(Medal == "Gold", na.rm = TRUE),
+    Plata  = sum(Medal == "Silver", na.rm = TRUE),
+    Bronce = sum(Medal == "Bronze", na.rm = TRUE)
+  ) %>%
+  arrange(desc(Total), desc(Oro), desc(Plata), desc(Bronce))
 
-#vector vacío para guardar el porcentaje por década
+top10_oficial <- head(ranking_oficial$Name, 10)
 
-cuota_top10 <- numeric(length(decadas))
+sub_oficial <- medallas %>%
+  filter(Name %in% top10_oficial)
 
-for (i in 1:length(decadas)) {
-  m <- medallero[medallero$Decada == decadas[i], ]#filtramos para quedarnos con la decada de la iteracion
-  por_pais <- sort(table(m$NOC), decreasing = TRUE)#contamos y ordenamos las medallas que consiguió cada país solo en esa década
-  cuota_top10[i] <- sum(head(por_pais, 10)) / sum(por_pais) * 100 #porcentaje de medallas de esa decada ganado por el top10
-}
+sub_oficial$Name <- factor(sub_oficial$Name, levels = rev(top10_oficial))
+sub_oficial$Medal <- factor(
+  sub_oficial$Medal, 
+  levels = c("Bronze", "Silver", "Gold"),
+  labels = c("Bronce", "Plata", "Oro") 
+)
 
-#concentracion
-concentracion <- data.frame(Decada = decadas, Cuota_top10 = round(cuota_top10, 1))
-
-
-
-ggplot(concentracion, aes(x = Decada, y = Cuota_top10)) +
-  geom_line() + geom_point() + ylim(0, 100) +
-  labs(x = "Década", y = "% de medallas del top 10") + theme_minimal()
-
-
+ggplot(sub_oficial, aes(x = Name, fill = Medal)) +
+  geom_bar() + 
+  coord_flip() +
+  scale_fill_manual(values = c(Oro = "gold", Plata = "grey70", Bronce = "#CD7F32")) +
+  labs(
+    x = "Atleta", 
+    y = "Número de Medallas", 
+    fill = "Medalla"
+  ) +
+  theme_minimal()
 
 
 ```
+
+
+
+
+
+
+
+
+
+
 
 
 
