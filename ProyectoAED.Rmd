@@ -37,7 +37,7 @@ editor_options:
     wrap: 72
 ---
 
-```{r setup, echo = FALSE, include = FALSR}
+```{r setup, echo = FALSE, include = FALSE}
 knitr::opts_chunk$set(echo = T, warning = FALSE, message = FALSE,fig.width = 5, fig.height = 4, fig.align = "center")
 p <- c("tidyverse", "skimr", "naniar", "janitor", "here", "ggplot2", "mice", "patchwork")
 if (length(f <- setdiff(p, rownames(installed.packages())))) install.packages(f)
@@ -152,57 +152,55 @@ tener una primera visualización sobre los datos y cómo se comportan.
 
 ### Análisis univariante
 
-```{r histogramas, include=T, fig.width=5, fig.height=4}
-#histograma de cada variable numérica
-variables <- c("Age", "Height", "Weight", "IMC")
-nombres <- c("Edad (años)", "Altura (cm)", "Peso (kg)", "IMC")
-dft<- data.frame()
-for (i in 1:4) {
-  tabla <- data.frame(Sex = atletas_juegos$Sex, Variable = nombres[i],
-                      Valor = atletas_juegos[[variables[i]]])
+```{r histogramas, include=T, fig.width=6, fig.height=4}
+# histograma univariante de cada variable numérica
+variables <- c("Age", "Height", "Weight")
+nombres <- c("Edad (años)", "Altura (cm)", "Peso (kg)")
+dft <- data.frame()
+
+for (i in 1:3) {
+  tabla <- data.frame(
+    Variable = nombres[i],
+    Valor = atletas_juegos[[variables[i]]]
+  )
   dft <- rbind(dft, tabla)
 }
+
 dft$Variable <- factor(dft$Variable, levels = nombres)
-ggplot(dft, aes(x = Valor, fill = Sex)) +
-  geom_histogram(bins = 40, alpha = 0.6, position = "identity") +
+
+# Ploteo estrictamente univariante (un solo color global)
+ggplot(dft, aes(x = Valor)) +
+  geom_histogram(bins = 40, fill = "steelblue", color = "white", alpha = 0.8) +
   facet_wrap(~ Variable, scales = "free") +
-  labs(x = "", y = "Frecuencia", fill = "Sexo") + theme_minimal()
+  labs(x = "", y = "Frecuencia") + theme_minimal()
 ```
 
-Los histogramas muestran la distribución de la edad, la altura, el peso
-y el IMC separada por sexo. Permiten comprobar la forma de cada
-distribución, su rango y las diferencias entre hombres y mujeres.
-Conviene tener en cuenta que, al juntar todos los deportes, las
-distribuciones mezclan perfiles físicos muy distintos, algo que se
-analiza con detalle en la pregunta 2.
+En cuanto a la Edad, la variable presenta una asimetría positiva con una mayor densidad entre los 20 y 28 años y un pico pronunciado alrededor de los 23-25 años. Además, podemos observar una caída a partir de los 30 años pero conservando una cola derecha que llega hasta los 50-70 años. Por otro lado, la Altura parece presentar un comportamiento gaussiano, donde media y mediana convergen cerca de los 175-178 cm. Finalmente, el Peso vuelve a mostrar una distribución sesgada a la derecha agrupando las principales frecuencias entre los 60 y 80 kg y también, con una cola alargada que supera los 120-150 kg.
 
 ### Análisis bivariante
 
-```{r, include=T, fig.width=5, fig.height=4}
-largo <- data.frame()
+```{r, include=T, fig.width=4, fig.height=3}
+box <- data.frame()
 for (v in c('Height', 'Weight')) {
   tabla <- data.frame(Sex = atletas_juegos$Sex,
                       Variable = ifelse(v == 'Height', 'Altura (cm)', 'Peso (kg)'),
                       Valor = atletas_juegos[[v]])
-  largo <- rbind(largo, tabla)
+  box <- rbind(box, tabla)
 }
-
-ggplot(largo, aes(x = Sex, y = Valor, fill = Sex)) +
+ggplot(box, aes(x = Sex, y = Valor, fill = Sex)) +
   stat_boxplot(geom = 'errorbar', width = 0.3) +
   geom_boxplot(outlier.size = 0.5, outlier.alpha = 0.05, alpha = 0.6) +
   facet_wrap(~ Variable, scales = 'free_y') +
-  labs(title = 'Altura y peso por sexo',
-       x = 'Sexo', 
+  labs(x = 'Sexo', 
        y = 'Valor',
-       fill = 'Sexo') +
-  theme_minimal() 
+       fill = 'Sexo') + theme_minimal() 
 ```
 
 Los diagramas de caja comparan la altura y el peso según el sexo. En
 ellos podemos observar la mediana, el rango intercuartílico y los
 valores atípicos de cada grupo, y comparar de forma directa a hombres y
 mujeres. Estos gráficos los hemos construido con los datos originales,
-por lo que todavía incluyen todas las filas del conjunto.
+por lo que todavía incluyen todas las filas del conjunto. Cabe destacar el enorme número de outliers, que se debe a la gran variedad de deportes que tenemos. Esto se analizará con más detalle en la pregunta 2, ya que las distintas pruebas requieren distintos perfiles físicos.
 
 # Calidad
 
