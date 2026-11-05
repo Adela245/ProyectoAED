@@ -154,9 +154,9 @@ library(patchwork)
 
 # Introducción
 
-# Materiales y métodos
+# Datos y exploración inicial
 
-## Datos
+## Importación y descripción de los datos 
 
 ```{r datos, include=FALSE}
 
@@ -275,11 +275,51 @@ datos$IMC[outliers_imc]    <- NA
 
 
 
+## Exploración inicial
+### Análisis univariante
 
 
-## Perdidos, outliers e imputación
+```{r histogramas, include=FALSE}
 
-### Perdidos
+#histograma de cada variable numérica
+variables <- c("Age", "Height", "Weight", "IMC")
+nombres <- c("Edad (años)", "Altura (cm)", "Peso (kg)", "IMC")
+dft<- data.frame()
+for (i in 1:4) {
+  tabla <- data.frame(Sex = atletas_juegos$Sex, Variable = nombres[i],
+                      Valor = atletas_juegos[[variables[i]]])
+  dft <- rbind(dft, tabla)
+}
+dft$Variable <- factor(dft$Variable, levels = nombres)
+ggplot(dft, aes(x = Valor, fill = Sex)) +
+  geom_histogram(bins = 40, alpha = 0.6, position = "identity") +
+  facet_wrap(~ Variable, scales = "free") +
+  labs(x = "", y = "Frecuencia", fill = "Sexo") + theme_minimal()
+```
+### Análisis bivariante
+
+```{r}
+largo <- data.frame()
+ 
+for (v in c('Height', 'Weight')) {
+  tabla <- data.frame(Sex = datos$Sex,
+                      Variable = ifelse(v == 'Height', 'Altura (cm)', 'Peso (kg)'),
+                      Valor = datos[[v]])
+  largo <- rbind(largo, tabla)
+}
+ 
+ggplot(largo, aes(x = Sex, y = Valor)) +
+  stat_boxplot(geom = 'errorbar', width = 0.3) +
+  geom_boxplot(outlier.size = 0.5, outlier.alpha = 0.05) +
+  facet_wrap(~ Variable, scales = 'free_y') +
+  labs(title = 'Altura y peso por sexo',
+       x = 'Sexo', y = 'Valor') 
+```
+
+# Calidad
+
+
+## Perdidos
 
 ```{r}
 colSums(is.na(datos)) #tras los cambios de acondicionamiento vemos que hay disminuido los NaN en las columnas
@@ -318,39 +358,11 @@ ggplot(perd_anio, aes(x = Year, y = Porcentaje, color = Variable, shape = Variab
 
 ```
 
-### Outliers
+## Outliers
 
-```{r}
-largo <- data.frame()
- 
-for (v in c('Height', 'Weight')) {
-  tabla <- data.frame(Sex = datos$Sex,
-                      Variable = ifelse(v == 'Height', 'Altura (cm)', 'Peso (kg)'),
-                      Valor = datos[[v]])
-  largo <- rbind(largo, tabla)
-}
- 
-ggplot(largo, aes(x = Sex, y = Valor)) +
-  stat_boxplot(geom = 'errorbar', width = 0.3) +
-  geom_boxplot(outlier.size = 0.5, outlier.alpha = 0.05) +
-  facet_wrap(~ Variable, scales = 'free_y') +
-  labs(title = 'Altura y peso por sexo',
-       x = 'Sexo', y = 'Valor')
-```
 
-```{r}
-#OPCIONALISIMO ALURA Y SEXO PARA ALGUNOS DEPORTES
 
-sub <- datos[datos$Sport %in% c('Basketball', 'Gymnastics', 'Weightlifting', 'Swimming'), ]
- 
-ggplot(sub, aes(x = Sport, y = Height, fill = Sex)) +
-  stat_boxplot(geom = 'errorbar', width = 0.3,
-               position = position_dodge(width = 0.75)) +
-  geom_boxplot(outlier.size = 0.5, outlier.alpha = 0.3,
-               position = position_dodge(width = 0.75)) +
-  labs(title = 'Altura por deporte y sexo',
-       x = 'Deporte', y = 'Altura (cm)')
-```
+
 
 
 ```{r outliers-metodos, include = FALSE }
@@ -427,8 +439,8 @@ deportes_edad_extrema
 ```
 
 
-### Imputación
-#### Método de la mediana
+## Imputación
+### Método de la mediana
 
 ```{r atletas-juegos}
 
@@ -446,7 +458,7 @@ atletas_juegos <- datos[!duplicated(datos[, c("ID", "Games")]), ]
 
 
 
-##### Imputacion de la altura 
+#### Imputacion de la altura 
 
 ```{r imput-mediana-altura}
 sum(is.na(atletas_juegos$Height)) #NAs en altura pre-imputación
@@ -479,7 +491,7 @@ sum(is.na((atletas_juegos$Height_imputed))) #NAs en altura post- tercera imputac
 ```
 
 
-##### Imputacion del peso 
+#### Imputacion del peso 
 ```{r imput-mediana-peso}
 sum(is.na(atletas_juegos$Weight)) #NAs en peso pre-imputación
 
@@ -508,7 +520,7 @@ atletas_juegos$Weight_imputed <- ifelse(
 sum(is.na((atletas_juegos$Weight_imputed))) #NAs en peso post- tercera imputación
 ```
 
-##### Imputación de edad 
+#### Imputación de edad 
 ```{r imput-mediana-edad}
 # NAs en edad pre-imputación
 sum(is.na(atletas_juegos$Age))
@@ -553,7 +565,7 @@ atletas_juegos$IMC_imputed <- atletas_juegos$Weight_imputed / (atletas_juegos$He
 ```
 
 
-#### Usando librería MICE
+### Usando librería MICE
 ```{r imput-mice}
 
 #semilla para poder repetir el experimento
@@ -586,28 +598,11 @@ muestra$Weight_cart <- completos_cart$Weight
 
 
 
-# Resultados
+# Resultados (preguntas de investigación)
 
-## Calidad de los datos
 
-## Análisis univariante
-```{r histogramas, include=FALSE}
 
-#histograma de cada variable numérica
-variables <- c("Age", "Height", "Weight", "IMC")
-nombres <- c("Edad (años)", "Altura (cm)", "Peso (kg)", "IMC")
-dft<- data.frame()
-for (i in 1:4) {
-  tabla <- data.frame(Sex = atletas_juegos$Sex, Variable = nombres[i],
-                      Valor = atletas_juegos[[variables[i]]])
-  dft <- rbind(dft, tabla)
-}
-dft$Variable <- factor(dft$Variable, levels = nombres)
-ggplot(dft, aes(x = Valor, fill = Sex)) +
-  geom_histogram(bins = 40, alpha = 0.6, position = "identity") +
-  facet_wrap(~ Variable, scales = "free") +
-  labs(x = "", y = "Frecuencia", fill = "Sexo") + theme_minimal()
-```
+
 
 
 
