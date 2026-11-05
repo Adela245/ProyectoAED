@@ -868,7 +868,6 @@ ggplot(sub, aes(x = NOC, fill = Medal)) +
 
 ```{r p3-ranking medallero individual}
 
-#Repetimos el mismo proceso pero con el df
 
 ranking_oficial <- medallas %>%
   group_by(Name) %>%
@@ -880,13 +879,10 @@ ranking_oficial <- medallas %>%
   ) %>%
   arrange(desc(Total), desc(Oro), desc(Plata), desc(Bronce))
 
-
 top10_oficial <- head(ranking_oficial$Name, 10)
-
 
 sub_oficial <- medallas %>%
   filter(Name %in% top10_oficial)
-
 
 sub_oficial$Name <- factor(sub_oficial$Name, levels = rev(top10_oficial))
 sub_oficial$Medal <- factor(
@@ -894,7 +890,6 @@ sub_oficial$Medal <- factor(
   levels = c("Bronze", "Silver", "Gold"),
   labels = c("Bronce", "Plata", "Oro") 
 )
-
 
 ggplot(sub_oficial, aes(x = Name, fill = Medal)) +
   geom_bar() + 
@@ -908,9 +903,17 @@ ggplot(sub_oficial, aes(x = Name, fill = Medal)) +
   theme_minimal()
 
 
-
-
 ```
+
+
+
+
+
+
+
+
+
+
 
 
 
