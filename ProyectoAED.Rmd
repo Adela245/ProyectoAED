@@ -231,6 +231,9 @@ sum(duplicated(datos)) # comprobar que no hay duplicados
 
 datos[is.na(datos$Medal),'Medal'] <- 'NM'
 
+#añadimos la columna IMC, variable auxiliar
+datos$IMC <- datos$Weight / (datos$Height / 100)^2
+
 
 # Tres nuevos dataframes para contestar las preguntas
 # Nos quedamos solo con las filas donde hubo medalla
@@ -256,10 +259,7 @@ medallero$Decada <- floor(medallero$Year / 10) *10
 
 ```
 
-```{r}
-#añadimos la columna IMC, variable auxiliar
-datos$IMC <- datos$Weight / (datos$Height / 100)^2
-```
+
 
 
 
@@ -292,7 +292,6 @@ datos$IMC[outliers_imc]    <- NA
 
 
 ```{r histogramas, include=FALSE}
-
 #histograma de cada variable numérica
 variables <- c("Age", "Height", "Weight", "IMC")
 nombres <- c("Edad (años)", "Altura (cm)", "Peso (kg)", "IMC")
@@ -308,6 +307,7 @@ ggplot(dft, aes(x = Valor, fill = Sex)) +
   facet_wrap(~ Variable, scales = "free") +
   labs(x = "", y = "Frecuencia", fill = "Sexo") + theme_minimal()
 ```
+
 ### Análisis bivariante
 
 ```{r}
