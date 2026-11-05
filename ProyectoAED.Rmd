@@ -215,7 +215,7 @@ knitr::kable(sumario, row.names = FALSE,
 
 
 ```{r}
-skim(datos) # Vemos los datos faltantes, el mínimo y el máximo de cada columna
+#skim(datos) # Vemos los datos faltantes, el mínimo y el máximo de cada columna
 
 
 ```
