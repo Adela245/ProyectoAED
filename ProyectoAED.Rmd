@@ -37,7 +37,7 @@ editor_options:
     wrap: 72
 ---
 
-```{r setup, echo = FALSE}
+```{r setup, echo = FALSE, include = False}
 knitr::opts_chunk$set(echo = T, warning = FALSE, message = FALSE,fig.width = 5, fig.height = 4, fig.align = "center")
 p <- c("tidyverse", "skimr", "naniar", "janitor", "here", "ggplot2", "mice", "patchwork")
 if (length(f <- setdiff(p, rownames(installed.packages())))) install.packages(f)
@@ -147,9 +147,12 @@ datos$IMC[outliers_imc]    <- NA
 
 ## Exploración inicial
 
+En esta sección llevamos a cabo análisis univariante y bivariante para
+tener una primera visualización sobre los datos y cómo se comportan.
+
 ### Análisis univariante
 
-```{r histogramas, include=T}
+```{r histogramas, include=T, fig.width=5, fig.height=4}
 #histograma de cada variable numérica
 variables <- c("Age", "Height", "Weight", "IMC")
 nombres <- c("Edad (años)", "Altura (cm)", "Peso (kg)", "IMC")
@@ -166,25 +169,40 @@ ggplot(dft, aes(x = Valor, fill = Sex)) +
   labs(x = "", y = "Frecuencia", fill = "Sexo") + theme_minimal()
 ```
 
+Los histogramas muestran la distribución de la edad, la altura, el peso
+y el IMC separada por sexo. Permiten comprobar la forma de cada
+distribución, su rango y las diferencias entre hombres y mujeres.
+Conviene tener en cuenta que, al juntar todos los deportes, las
+distribuciones mezclan perfiles físicos muy distintos, algo que se
+analiza con detalle en la pregunta 2.
+
 ### Análisis bivariante
 
-```{r, include=T}
+```{r, include=T, fig.width=5, fig.height=4}
 largo <- data.frame()
- 
 for (v in c('Height', 'Weight')) {
-  tabla <- data.frame(Sex = datos$Sex,
+  tabla <- data.frame(Sex = atletas_juegos$Sex,
                       Variable = ifelse(v == 'Height', 'Altura (cm)', 'Peso (kg)'),
-                      Valor = datos[[v]])
+                      Valor = atletas_juegos[[v]])
   largo <- rbind(largo, tabla)
 }
- 
-ggplot(largo, aes(x = Sex, y = Valor)) +
+
+ggplot(largo, aes(x = Sex, y = Valor, fill = Sex)) +
   stat_boxplot(geom = 'errorbar', width = 0.3) +
-  geom_boxplot(outlier.size = 0.5, outlier.alpha = 0.05) +
+  geom_boxplot(outlier.size = 0.5, outlier.alpha = 0.05, alpha = 0.6) +
   facet_wrap(~ Variable, scales = 'free_y') +
   labs(title = 'Altura y peso por sexo',
-       x = 'Sexo', y = 'Valor') 
+       x = 'Sexo', 
+       y = 'Valor',
+       fill = 'Sexo') +
+  theme_minimal() 
 ```
+
+Los diagramas de caja comparan la altura y el peso según el sexo. En
+ellos se observa la mediana, el rango intercuartílico y los valores
+atípicos de cada grupo, y permiten comparar de forma directa a hombres y
+mujeres. Estos gráficos se han construido con los datos originales, por
+lo que todavía incluyen todas las filas del conjunto.
 
 # Calidad
 
@@ -505,15 +523,16 @@ juegos de la estación de verano han aumentado su participación, pero con
 ciertas bajadas en determinados años. Si buscamos información podemos
 entender estos cambios:
 
-- La primera bajada se puede apreciar en el año 1932. Seguramente, se
-  debe a la crisis de 1929, por la cual muchos atletas no podían
-  permitirse el viaje. Además, esta edición se celebró en Los Ángeles,
-  dificultando el traslado de numerosos atletas. Por estas razones, para
-  no perder representación, muchos países optaron por envíar pequeños
-  grupos. Por ello, el número de países apenas sufrió variación mientras
-  que la cantidad total de atletas cayó a menos de la mitad.
+-   La primera bajada se puede apreciar en el año 1932. Seguramente, se
+    debe a la crisis de 1929, por la cual muchos atletas no podían
+    permitirse el viaje. Además, esta edición se celebró en Los Ángeles,
+    dificultando el traslado de numerosos atletas. Por estas razones,
+    para no perder representación, muchos países optaron por envíar
+    pequeños grupos. Por ello, el número de países apenas sufrió
+    variación mientras que la cantidad total de atletas cayó a menos de
+    la mitad.
 
-- 
+-   
 
 ```{r p1-mujeres-heatmap, fig.width=14, fig.height=7, include=T}
 
