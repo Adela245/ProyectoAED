@@ -92,37 +92,34 @@ sumario$missFrac <- sumario$missFreq / nrow(datos)
 knitr::kable(sumario, row.names = FALSE, caption = "Sumario del dataset original")
 ```
 
+En este sumario podemos observar información sobre cada variable.
+Destaca el caso de la variable *Medal*, con un 85% de valores perdidos.
+Sin embargo, esto no se trata de un error, según la información del
+dataset, esto no se trata de valores perdidos sino atletas sin medalla.
+Esto se tratará debidamente en la siguiente sección.
+
 ## Acondicionamiento
 
+Durante esta sección, se lleva a cabo un tratamiento de los datos: desde
+la limpieza de valores duplicados hasta la creación de nuevas variables
+y dataframes necesarios para el análisis posterior. También asignamos
+'NM' a los valores NA dentro de *Medal.*
+
 ```{r, include=T}
-#
+#Eliminamos duplicados
 datos <- unique(datos)
-sum(duplicated(datos)) # comprobar que no hay duplicados
-
 # Sustituimos los nan de la columna Medal por NM: no medalla
-
 datos[is.na(datos$Medal),'Medal'] <- 'NM'
-
-#añadimos la columna IMC, variable auxiliar
+#añadimos columnas IMC y Decada
 datos$IMC <- datos$Weight / (datos$Height / 100)^2
-
-
-# Tres nuevos dataframes para contestar las preguntas
-# Nos quedamos solo con las filas donde hubo medalla
-medallas <- datos[datos$Medal != 'NM', ]
-
+datos$Decada <- floor(datos$Year / 10) *10
+#Tres nuevos dataframes para contestar las preguntas
+medallas <- datos[datos$Medal != 'NM', ]#filas donde hubo medalla
 # Quitamos las repeticiones de juegos por equipo
 medallero <- unique(medallas[, c('Games','Year', 'Event', 'NOC', 'Medal')])
-
-
-
-atletas_juegos <- datos[!duplicated(datos[, c("ID", "Games")]), ]
-
-
-
-# Nos creamos columnas para posteriores analisis
-datos$Decada <- floor(datos$Year / 10) *10
 medallero$Decada <- floor(medallero$Year / 10) *10
+#Quitamos atletas que participen en distintas categorías de un mismo deporte
+atletas_juegos <- datos[!duplicated(datos[, c("ID", "Games")]), ]
 ```
 
 Comprobamos posibles valores erróneos usando el IMC:
