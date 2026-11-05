@@ -122,29 +122,6 @@ medallero$Decada <- floor(medallero$Year / 10) *10
 atletas_juegos <- datos[!duplicated(datos[, c("ID", "Games")]), ]
 ```
 
-Comprobamos posibles valores erróneos usando el IMC:
-
-```{r}
-
-sum(datos$IMC<12, na.rm = T) #Resultado: 2 , asignar NA 
-sum(datos$IMC>50, na.rm=T ) #Resultado: 2 , asignar NA 
-
-
-
-#Asignamos NA tanto en peso como en altura en estas variables
-# 1. Creamos la máscara lógica asegurando que IMC no sea NA
-outliers_imc <- !is.na(datos$IMC) & (datos$IMC < 12 | datos$IMC > 50)
-
-#comprobamos que sale lo esperado: 14
-sum(outliers_imc)
-
-# 2. Asignamos NA a las tres variables (por simplificación asignamos NA a altura y edad, pero se podría ver manualmente cúal es la columna errónea)
-datos$Height[outliers_imc] <- NA
-datos$Weight[outliers_imc] <- NA
-datos$IMC[outliers_imc]    <- NA
-
-```
-
 ## Exploración inicial
 
 En esta sección llevamos a cabo análisis univariante y bivariante para
@@ -227,7 +204,7 @@ A continuación, estudiamos la evolución de *NA* con el paso de los años:
 cols <- c('Age', 'Height', 'Weight')
 perd_anio <- data.frame()
 for (v in cols) {
-  porcentaje <- tapply(is.na(datos[[v]]), datos$Year, mean) * 100
+  porcentaje <- tapply(is.na(atletas_juegos[[v]]), atletas_juegos$Year, mean) * 100
   tabla <- data.frame(Year = as.numeric(names(porcentaje)),
                       Variable = v,
                       Porcentaje = as.numeric(porcentaje))
@@ -239,7 +216,7 @@ perd_anio$Variable <- factor(perd_anio$Variable,
 ggplot(perd_anio, aes(x = Year, y = Porcentaje, color = Variable, shape = Variable, linetype = Variable)) +
   geom_line() +
   geom_point() +
-  scale_linetype_manual(values = c('Edad' = 'solid', 'Altura' = 'solid', 'Peso' = 'dotted')) +
+  scale_linetype_manual(values = c('Edad' = 'solid', 'Altura' = 'solid', 'Peso' = 'dashed')) +
   labs(
     x = 'Año',
     y = '% de datos perdidos',
@@ -253,16 +230,21 @@ Podemos comprobar que la mayoría de datos perdidos se concentran en las
 décadas iniciales, con una clara tendencia decreciente con el paso del
 tiempo.
 
-## Outliers
+## Outlier
+
+En esta sección comparamos tres criterios clásicos de detección de
+valores atípicos, aplicados a la altura, el peso y la edad:
+
+-   **Regla de las 3 sigmas:** se consideran atípicos los valores que se
+    alejan de la media más de tres desviaciones típicas.
+-   **Filtro de Hampel:** análoga a la anterior, pero usando la mediana
+    y la desviación absoluta mediana (MAD).
+-   **Regla del boxplot:** son atípicos los valores situados a más de
+    1,5 veces el rango intercuartílico por debajo del primer cuartil o
+    por encima del tercero.
 
 ```{r outliers-metodos, include = T }
 #MÉTODOS DE IDENTIFIACIÓN DE OUTLIERS Y TABLA RESUMEN
-# n = total de datos
-# nMiss = los valores perdidos
-#nOut = outliers detectados
-#limites teoricos
-#limites reales de los datos sanos
-
 detectar_outliers <- function(x, variable) {
   n_na <- sum(is.na(x))
   x <- x[!is.na(x)]
@@ -279,53 +261,73 @@ detectar_outliers <- function(x, variable) {
   sup <- c(media + 3 * dt, mediana + 3 * desv_mad, q3 + 1.5 * iqr)
 
   n_out <- numeric(3)
-  min_nom <- numeric(3)
-  max_nom <- numeric(3)
   for (i in 1:3) {
     n_out[i] <- sum(x < inf[i] | x > sup[i])
-    nominales <- x[x >= inf[i] & x <= sup[i]]
-    min_nom[i] <- min(nominales)
-    max_nom[i] <- max(nominales)
   }
 
-  data.frame(Variable = variable, Metodo = c("3 sigma", "Hampel", "Boxplot"),
-             n = length(x), nMiss = n_na, nOut = n_out,
-             lowLim = round(inf, 1), upLim = round(sup, 1),
-             minNom = min_nom, maxNom = max_nom)
+  data.frame(Variable = variable, Metodo = c("3 sigma", "Hampel", "Boxplot"),n = length(x),nOut=n_out)
 }
 
-resultado_outliers <- rbind(detectar_outliers(datos$Height, "Altura"),
-                            detectar_outliers(datos$Weight, "Peso"),
-                            detectar_outliers(datos$Age, "Edad"))
-
+resultado_outliers <- rbind(detectar_outliers(atletas_juegos$Height, "Altura"),detectar_outliers(atletas_juegos$Weight, "Peso"), detectar_outliers(atletas_juegos$Age, "Edad"))
+resultado_outliers
 
 ```
 
-```{r, include=T}
+En la tabla, `n` es el número de datos no perdidos y `nOut` el de
+atípicos detectados.
+
+Sin embargo, un valor extremo no es necesariamente un error. Un jugador
+de baloncesto muy alto o un lanzador muy pesado son valores extremos si
+se comparan con todos los atletas, pero son perfectamente normales
+dentro de su deporte. Al aplicar el criterio del boxplot por deporte
+obtenemos que los deportes con mas outliers son aquellos en los que las
+pruebas pueden requerir de distintos perfiles físicos, como el
+atletismo.
+
+```{r, include=F}
 
 #OUTLIERS POR DEPORTE 
-marcas_outliers <- data.frame(Altura = rep(FALSE, nrow(datos)),
-                              Peso = rep(FALSE, nrow(datos)),
-                              Edad = rep(FALSE, nrow(datos)))
+marcas_outliers <- data.frame(Altura = rep(FALSE, nrow(atletas_juegos)),
+                              Peso = rep(FALSE, nrow(atletas_juegos)),
+                              Edad = rep(FALSE, nrow(atletas_juegos)))
 variables <- c("Height", "Weight", "Age")
 for (i in 1:3) {
-  x <- datos[[variables[i]]]
-  q1 <- ave(x, datos$Sex, datos$Sport, FUN = function(v) quantile(v, 0.25, na.rm = TRUE))
-  q3 <- ave(x, datos$Sex, datos$Sport, FUN = function(v) quantile(v, 0.75, na.rm = TRUE))
-  n_datos <- ave(as.numeric(!is.na(x)), datos$Sex, datos$Sport, FUN = sum)
+  x <- atletas_juegos[[variables[i]]]
+  q1 <- ave(x, atletas_juegos$Sex, atletas_juegos$Sport, FUN = function(v) quantile(v, 0.25, na.rm = TRUE))
+  q3 <- ave(x, atletas_juegos$Sex, atletas_juegos$Sport, FUN = function(v) quantile(v, 0.75, na.rm = TRUE))
+  n_datos <- ave(as.numeric(!is.na(x)), atletas_juegos$Sex, atletas_juegos$Sport, FUN = sum)
   iqr <- q3 - q1
-  marcas_outliers[[i]] <- !is.na(x) & n_datos >= 30 & (x < q1 - 1.5 * iqr | x > q3 + 1.5 * iqr)
+  marcas_outliers[[i]] <- !is.na(x) & n_datos >= 0 & (x < q1 - 1.5 * iqr | x > q3 + 1.5 * iqr)
 }
 
-deportes_edad_extrema <- head(sort(table(datos$Sport[marcas_outliers$Edad]), decreasing = TRUE), 3)
+deportes_edad_extrema <- head(sort(table(atletas_juegos$Sport[marcas_outliers$Edad]), decreasing = TRUE), 10)
 
+deportes_peso_extrema <- head(sort(table(atletas_juegos$Sport[marcas_outliers$Peso]), decreasing = TRUE), 10)
 
-columnas <- c("ID", "Name", "Sex", "Age", "Height", "Weight", "Sport", "Year")
-head(datos[marcas_outliers$Altura, columnas][order(datos$Height[marcas_outliers$Altura]), ], 20)
-head(datos[marcas_outliers$Peso, columnas][order(datos$Weight[marcas_outliers$Peso]), ], 20)
-head(datos[marcas_outliers$Edad, columnas][order(-datos$Age[marcas_outliers$Edad]), ], 20)
+deportes_altura_extrema <- head(sort(table(atletas_juegos$Sport[marcas_outliers$Altura]), decreasing = TRUE), 10)
 
+deportes_peso_extrema
 deportes_edad_extrema
+deportes_altura_extrema
+```
+
+Como conclusión, los valores atípicos no se han eliminado: tras
+comprobar que muchos corresponden a atletas reales con perfiles propios
+de su deporte, solo vamos a tratar como errores los detectados mediante
+el IMC (altura y peso incompatibles entre sí). Los demás se mantienen en
+el análisis.
+
+El criterio utilizado para eliminar o no outliers se basa en si el valor
+de IMC es menor de 12 o mayor de 50, considerados valores imposibles.
+
+```{r}
+#Asignamos NA tanto en peso como en altura en estas variables
+outliers_imc <- !is.na(atletas_juegos$IMC) & (atletas_juegos$IMC < 12 | atletas_juegos$IMC > 50)
+#Asignamos NA a las tres variables (por simplificación asignamos NA a altura y edad, pero se podría ver manualmente cúal es la columna errónea)
+atletas_juegos$Height[outliers_imc] <- NA
+atletas_juegos$Weight[outliers_imc] <- NA
+atletas_juegos$IMC[outliers_imc]    <- NA
+
 ```
 
 ## Imputación
@@ -534,15 +536,16 @@ juegos de la estación de verano han aumentado su participación, pero con
 ciertas bajadas en determinados años. Si buscamos información podemos
 entender estos cambios:
 
-- La primera bajada se puede apreciar en el año 1932. Seguramente, se
-  debe a la crisis de 1929, por la cual muchos atletas no podían
-  permitirse el viaje. Además, esta edición se celebró en Los Ángeles,
-  dificultando el traslado de numerosos atletas. Por estas razones, para
-  no perder representación, muchos países optaron por envíar pequeños
-  grupos. Por ello, el número de países apenas sufrió variación mientras
-  que la cantidad total de atletas cayó a menos de la mitad.
+-   La primera bajada se puede apreciar en el año 1932. Seguramente, se
+    debe a la crisis de 1929, por la cual muchos atletas no podían
+    permitirse el viaje. Además, esta edición se celebró en Los Ángeles,
+    dificultando el traslado de numerosos atletas. Por estas razones,
+    para no perder representación, muchos países optaron por envíar
+    pequeños grupos. Por ello, el número de países apenas sufrió
+    variación mientras que la cantidad total de atletas cayó a menos de
+    la mitad.
 
-- 
+-   
 
 ```{r p1-mujeres-heatmap, fig.width=14, fig.height=7, include=T}
 
