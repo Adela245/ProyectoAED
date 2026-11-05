@@ -132,6 +132,7 @@ abbreviations:
 endnotes: false
 header-includes:
   - \newcommand{\pandocbounded}[1]{#1}
+  - \newcounter{none}
 output: 
   rticles::mdpi_article:
     extra_dependencies: longtable
