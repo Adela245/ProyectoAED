@@ -140,7 +140,7 @@ editor_options:
   markdown: 
     wrap: 72
 ---
-```{r setup, include=FALSE}
+```{r setup, include=T, echo = T}
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE,fig.width = 6, fig.height = 3.5, fig.align = "center")
 library(ggplot2)
 library(naniar)
@@ -159,7 +159,7 @@ library(patchwork)
 
 ## Importación y descripción de los datos 
 
-```{r datos, include=FALSE}
+```{r datos, include=T, echo = T}
 
 datos <- read.csv('./data/athlete_events.csv')
 n_filas_originales <- nrow(datos)
@@ -180,7 +180,7 @@ str(datos)
 ```
 
 
-```{r sumario}
+```{r sumario, include=T}
 
 columnas<-colnames(datos)
 sumario<-data.frame()
@@ -213,16 +213,9 @@ knitr::kable(sumario, row.names = FALSE,
 ```
 
 
-
-```{r}
-skim(datos) # Vemos los datos faltantes, el mínimo y el máximo de cada columna
-
-
-```
-
 ## Acondicionamiento
 
-```{r}
+```{r, include=T}
 #
 datos <- unique(datos)
 sum(duplicated(datos)) # comprobar que no hay duplicados
@@ -230,6 +223,9 @@ sum(duplicated(datos)) # comprobar que no hay duplicados
 # Sustituimos los nan de la columna Medal por NM: no medalla
 
 datos[is.na(datos$Medal),'Medal'] <- 'NM'
+
+#añadimos la columna IMC, variable auxiliar
+datos$IMC <- datos$Weight / (datos$Height / 100)^2
 
 
 # Tres nuevos dataframes para contestar las preguntas
@@ -248,21 +244,7 @@ atletas_juegos <- datos[!duplicated(datos[, c("ID", "Games")]), ]
 # Nos creamos columnas para posteriores analisis
 datos$Decada <- floor(datos$Year / 10) *10
 medallero$Decada <- floor(medallero$Year / 10) *10
-
-
-
-
-
-
 ```
-
-```{r}
-#añadimos la columna IMC, variable auxiliar
-datos$IMC <- datos$Weight / (datos$Height / 100)^2
-```
-
-
-
 Comprobamos posibles valores erróneos usando el IMC:
 ```{r}
 
@@ -285,14 +267,11 @@ datos$IMC[outliers_imc]    <- NA
 
 ```
 
-
-
 ## Exploración inicial
 ### Análisis univariante
 
 
-```{r histogramas, include=FALSE}
-
+```{r histogramas, include=T}
 #histograma de cada variable numérica
 variables <- c("Age", "Height", "Weight", "IMC")
 nombres <- c("Edad (años)", "Altura (cm)", "Peso (kg)", "IMC")
@@ -308,9 +287,10 @@ ggplot(dft, aes(x = Valor, fill = Sex)) +
   facet_wrap(~ Variable, scales = "free") +
   labs(x = "", y = "Frecuencia", fill = "Sexo") + theme_minimal()
 ```
+
 ### Análisis bivariante
 
-```{r}
+```{r, include=T}
 largo <- data.frame()
  
 for (v in c('Height', 'Weight')) {
@@ -333,14 +313,14 @@ ggplot(largo, aes(x = Sex, y = Valor)) +
 
 ## Perdidos
 
-```{r}
+```{r, include=T}
 colSums(is.na(datos)) #tras los cambios de acondicionamiento vemos que hay disminuido los NaN en las columnas
 
 
 ```
 
 
-```{r}
+```{r, include=T}
 #evolucion de los Nans por año para ver si han disminuid con el paso del tiempo 
 
 cols <- c('Age', 'Height', 'Weight')
@@ -355,8 +335,6 @@ for (v in cols) {
                       Porcentaje = as.numeric(porcentaje))
   perd_anio <- rbind(perd_anio, tabla)
 }
-
-
 
 #ggplot
 library(ggplot2)
@@ -377,7 +355,7 @@ ggplot(perd_anio, aes(x = Year, y = Porcentaje, color = Variable, shape = Variab
 
 
 
-```{r outliers-metodos, include = FALSE }
+```{r outliers-metodos, include = T }
 #MÉTODOS DE IDENTIFIACIÓN DE OUTLIERS Y TABLA RESUMEN
 # n = total de datos
 # nMiss = los valores perdidos
@@ -423,7 +401,7 @@ resultado_outliers <- rbind(detectar_outliers(datos$Height, "Altura"),
 
 ```
 
-```{r}
+```{r, include=T}
 
 #OUTLIERS POR DEPORTE 
 marcas_outliers <- data.frame(Altura = rep(FALSE, nrow(datos)),
@@ -454,7 +432,7 @@ deportes_edad_extrema
 ## Imputación
 ### Método de la mediana
 
-```{r atletas-juegos}
+```{r atletas-juegos, include=T}
 
 #Creamos df: atletas juegos para no repetir datos de una persona repetidas veces si tiene varias participaciones en los mismos juegos
 
@@ -472,7 +450,7 @@ atletas_juegos <- datos[!duplicated(datos[, c("ID", "Games")]), ]
 
 #### Imputacion de la altura 
 
-```{r imput-mediana-altura}
+```{r imput-mediana-altura, include=T}
 sum(is.na(atletas_juegos$Height)) #NAs en altura pre-imputación
 
 #Imputación 1
@@ -504,7 +482,7 @@ sum(is.na((atletas_juegos$Height_imputed))) #NAs en altura post- tercera imputac
 
 
 #### Imputacion del peso 
-```{r imput-mediana-peso}
+```{r imput-mediana-peso, include=T}
 sum(is.na(atletas_juegos$Weight)) #NAs en peso pre-imputación
 
 #Imputación 1
@@ -533,7 +511,7 @@ sum(is.na((atletas_juegos$Weight_imputed))) #NAs en peso post- tercera imputaci�
 ```
 
 #### Imputación de edad 
-```{r imput-mediana-edad}
+```{r imput-mediana-edad, include=T}
 # NAs en edad pre-imputación
 sum(is.na(atletas_juegos$Age))
 
@@ -569,7 +547,8 @@ atletas_juegos$Age_imputed <- ifelse(
 # NAs en edad post- tercera imputación
 sum(is.na(atletas_juegos$Age_imputed))
 ```
-```{r IMC-imputed}
+
+```{r IMC-imputed, include=T}
 
 #Recalculamos IMC con las variables imputadas
 atletas_juegos$IMC_imputed <- atletas_juegos$Weight_imputed / (atletas_juegos$Height_imputed / 100)^2
@@ -578,7 +557,7 @@ atletas_juegos$IMC_imputed <- atletas_juegos$Weight_imputed / (atletas_juegos$He
 
 
 ### Usando librería MICE
-```{r imput-mice}
+```{r imput-mice, include=T}
 
 #semilla para poder repetir el experimento
 set.seed(123)
@@ -621,7 +600,7 @@ muestra$Weight_cart <- completos_cart$Weight
 ## P1: quién compite y cómo cambia
 
 En primer lugar, realizaremos un análisis del número de atletas y países que participaron en cada edición de los juegos olímpicos. Para ello, graficaremos el total de países y atletas en función de los años en los que se celebraron estos juegos.
-```{r p1-datos, include= FALSE}
+```{r p1-datos, fig.width=14, fig.height=7,, include=T}
 # Datos con los juegos 
 juegos <- unique(atletas_juegos[,c('Games', 'Year', 'Season')])
 juegos <- juegos[order(juegos$Year), ]
@@ -661,7 +640,7 @@ Como podemos observar, el número de atletas y países participantes ha ido aume
 
 -
 
-```{r p1-mujeres-heatmap, fig.width=14, fig.height=7}
+```{r p1-mujeres-heatmap, fig.width=14, fig.height=7, include=T}
 
 #  % Global de mujeres agrupado por DÉCADA
 grafico_pct_mujeres <- atletas_juegos %>%
@@ -738,7 +717,7 @@ Los deportes seleccionados son baloncesto, gimnasia, natación,halterofilia, atl
 A continuación filtramos el dataframe atletas_juegos para quedarnos solo con las filas de los deportes seleccionados.
 
 ### Distribución de la Altura por Deporte y Sexo
-```{r}
+```{r, include=T}
 deportes_sel <- c("Basketball", "Gymnastics","Weightlifting","Swimming", "Athletics", "Judo", "Volleyball", "Cycling")
 
 
@@ -752,7 +731,7 @@ obs$Sport <- reorder(obs$Sport, obs$Height_imputed, FUN = median)
 
 El objetivo de este gráfico es mostrar la distribución de la altura para 8 deportes, comparando hombres y mujeres lado a lado en cada deporte que hemos escogido.
 
-```{r}
+```{r, include=T}
 
 ggplot(obs, aes(x = Height_imputed, y = Sport, fill = Sex))+
 
@@ -785,7 +764,7 @@ Los jugadores de baloncesto y voleibol destacan por registrar las estaturas más
 
 A continuación vamos a analizar la masa corporal. Mostraremos la distribución del peso para los 8 deportes. La ordenación se mantiene  según la estatura previa para observar si el peso sigue el mimsmo patrón.
 
-```{r}
+```{r, include=T}
 ggplot(obs, aes(x = Weight_imputed, y = Sport, fill = Sex)) +
   stat_boxplot(geom = "errorbar", width = 0.3, position = position_dodge(0.75)) +
   geom_boxplot(outlier.size = 0.5, outlier.alpha = 0.3, position = position_dodge(0.75)) +
@@ -799,7 +778,7 @@ Aunque el peso tiende a aumentar con la estatura, observamos excepciones destaca
 
 
 ### Evlución de la edad por época
-```{r}
+```{r, include=T}
 
 
 # 1. Selección manual equilibrada de 15 deportes (de jóvenes a longevos)
@@ -838,7 +817,7 @@ ggplot(mediana_edad, aes(x = factor(Decada), y = Sport, fill = Mediana)) +
 
 
 ## P3: ¿Quién concentra las medallas?
-```{r p3-datos,include=F}
+```{r p3-datos,include=T}
 #En esta sección trabajaremos sobre todo con el df medallero
 
 #Asignamos Equipo Unificado de 1992 a la URSS
@@ -866,9 +845,8 @@ ggplot(sub, aes(x = NOC, fill = Medal)) +
 
 ```
 
+
 ```{r p3-ranking medallero individual}
-
-
 ranking_oficial <- medallas %>%
   group_by(Name) %>%
   summarise(
