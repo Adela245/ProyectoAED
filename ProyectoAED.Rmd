@@ -855,39 +855,57 @@ top10 <- names(medallas_pais)[1:10]
 #graficamos el top 10 por tipo de medalla
 sub <- medallero[medallero$NOC %in% top10, ] #guardamos los registros del top 10
 sub$NOC <- factor(sub$NOC, levels = rev(top10)) #convertimos a factor
-sub$Medal <- factor(sub$Medal, levels = c("Bronze", "Silver", "Gold")) #convertimos a factor y ordenamos
+sub$Medal <- factor(sub$Medal, levels = c("Bronze", "Silver", "Gold"), labels = c("Bronce", "Plata", "Oro")) #convertimos a factor y ordenamos
 
 #finalmente ploteamos
 ggplot(sub, aes(x = NOC, fill = Medal)) +
   geom_bar() + coord_flip() +
-  scale_fill_manual(values = c(Gold = "gold", Silver = "grey70", Bronze = "#CD7F32")) +
-  labs(x = "País", y = "Medallas", fill = "Medalla") 
+  scale_fill_manual(values = c(Oro = "gold", Plata = "grey70", Bronce = "#CD7F32")) +
+  labs(x = "País", y = "Medallas", fill = "Medalla") +
+  theme_minimal()
 
 ```
 
-```{r p3- concentracion}
+```{r p3-ranking medallero individual}
 
-#creamos vector de cada decada
-decadas <- sort(unique(medallero$Decada))
+#Repetimos el mismo proceso pero con el df
 
-#vector vacío para guardar el porcentaje por década
-
-cuota_top10 <- numeric(length(decadas))
-
-for (i in 1:length(decadas)) {
-  m <- medallero[medallero$Decada == decadas[i], ]#filtramos para quedarnos con la decada de la iteracion
-  por_pais <- sort(table(m$NOC), decreasing = TRUE)#contamos y ordenamos las medallas que consiguió cada país solo en esa década
-  cuota_top10[i] <- sum(head(por_pais, 10)) / sum(por_pais) * 100 #porcentaje de medallas de esa decada ganado por el top10
-}
-
-#concentracion
-concentracion <- data.frame(Decada = decadas, Cuota_top10 = round(cuota_top10, 1))
+ranking_oficial <- medallas %>%
+  group_by(Name) %>%
+  summarise(
+    Total  = n(),
+    Oro    = sum(Medal == "Gold", na.rm = TRUE),
+    Plata  = sum(Medal == "Silver", na.rm = TRUE),
+    Bronce = sum(Medal == "Bronze", na.rm = TRUE)
+  ) %>%
+  arrange(desc(Total), desc(Oro), desc(Plata), desc(Bronce))
 
 
+top10_oficial <- head(ranking_oficial$Name, 10)
 
-ggplot(concentracion, aes(x = Decada, y = Cuota_top10)) +
-  geom_line() + geom_point() + ylim(0, 100) +
-  labs(x = "Década", y = "% de medallas del top 10") + theme_minimal()
+
+sub_oficial <- medallas %>%
+  filter(Name %in% top10_oficial)
+
+
+sub_oficial$Name <- factor(sub_oficial$Name, levels = rev(top10_oficial))
+sub_oficial$Medal <- factor(
+  sub_oficial$Medal, 
+  levels = c("Bronze", "Silver", "Gold"),
+  labels = c("Bronce", "Plata", "Oro") 
+)
+
+
+ggplot(sub_oficial, aes(x = Name, fill = Medal)) +
+  geom_bar() + 
+  coord_flip() +
+  scale_fill_manual(values = c(Oro = "gold", Plata = "grey70", Bronce = "#CD7F32")) +
+  labs(
+    x = "Atleta", 
+    y = "Número de Medallas", 
+    fill = "Medalla"
+  ) +
+  theme_minimal()
 
 
 
