@@ -11,11 +11,6 @@ affiliation:
   - num: 1
     address: |
       Máster en Ciencia de Datos, Universitat de València
-    email: correo1@uv.es
-authorcitation: |
-  Apellido 1, N.; Apellido 2, N.; Apellido 3, N.
-correspondence: |
-  correo1@uv.es
 type: article
 status: submit
 abstract: |
@@ -31,6 +26,8 @@ header-includes:
   - \newcounter{none}
   - \usepackage{etoolbox}
   - \AtBeginEnvironment{Shaded}{\scriptsize}
+  - \AtBeginDocument{\small}
+  - \linespread{0.95}
 output: 
   rticles::mdpi_article:
     extra_dependencies: longtable
