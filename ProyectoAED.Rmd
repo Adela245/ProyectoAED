@@ -407,7 +407,7 @@ que participaron en cada edición de los juegos olímpicos. Para ello,
 graficaremos el total de países y atletas en función de los años en los
 que se celebraron estos juegos.
 
-```{r p1-datos, fig.width=14, fig.height=7,, include=T}
+```{r p1-datos, fig.width=6, fig.height=3.5,, include=T}
 # Datos con los juegos 
 juegos <- unique(atletas_juegos[,c('Games', 'Year', 'Season')])
 juegos <- juegos[order(juegos$Year), ]
@@ -432,6 +432,8 @@ for (i in 1:2) {
                       Indicador = etiquetas[i], Valor = juegos[[indicadores[i]]])
   datosP1 <- rbind(datosP1, tabla)
 }
+datosP1$Season <- factor(datosP1$Season, levels = c("Summer", "Winter"), 
+                         labels = c("Verano", "Invierno"))
 datosP1$Indicador <- factor(datosP1$Indicador, levels = etiquetas)
 ggplot(datosP1, aes(x = Year, y = Valor, color = Season)) +
   geom_vline(xintercept = c(1980, 1984), linetype = "dashed", color = "grey50") +
@@ -460,7 +462,7 @@ entender estos cambios:
 
 - 
 
-```{r p1-mujeres-heatmap, fig.width=14, fig.height=7, include=T}
+```{r p1-mujeres-heatmap, fig.width=6, fig.height=4, include=T}
 
 #  % Global de mujeres agrupado por DÉCADA
 grafico_pct_mujeres <- atletas_juegos %>%
@@ -470,30 +472,20 @@ grafico_pct_mujeres <- atletas_juegos %>%
   geom_line(linewidth = 0.9) +
   geom_point(size = 2) +
   scale_y_continuous(limits = c(0, 60)) +
-  labs(
-    title = "% Global de Mujeres por Década",
-    x = "Década",
-    y = "% Mujeres",
-    color = "Estación"
-  ) +
+  labs(x = "Década", y = "% Mujeres", color = "Estación") +
   theme_minimal() +
-  theme(
-    plot.title = element_text(face = "bold", size = 11),
-    axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1),
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 1),
     legend.position = "bottom"
   )
-
 # Mapa de Calor por deportes seleccionados (por Década)
 deportes_clave <- c(
   "Synchronized Swimming", "Softball", "Rhythmic Gymnastics", "Figure Skating", 
-  "Gymnastics", "Cycling", "Cricket", "Boxing", "Swimming", "Speed Skating", 
-  "Football", "Fencing", "Shooting", "Hockey", "Sailing", "Archery"
-)
-
+  "Gymnastics", "Cycling", "Boxing", "Swimming", "Speed Skating", 
+  "Football", "Fencing", "Shooting", "Hockey", "Sailing")
 deportes_historicos <- atletas_juegos %>%
   group_by(Sport) %>%
   summarise(n_decadas = n_distinct(Decada), .groups = "drop") %>%
-  filter(n_decadas >= 8) %>%
+  filter(n_decadas >= 10) %>%
   pull(Sport)
 
 deportes_seleccionados <- unique(c(deportes_clave, deportes_historicos))
@@ -505,24 +497,15 @@ grafico_heatmap <- atletas_juegos %>%
   ggplot(aes(
     x = factor(Decada), 
     y = reorder(Sport, pct_mujeres, FUN = median, na.rm = TRUE), 
-    fill = pct_mujeres
-  )) +
+    fill = pct_mujeres)) +
   geom_tile(color = "white", linewidth = 0.2) +
   scale_fill_viridis_c(option = "magma", name = "% Mujeres", limits = c(0, 100), na.value = "grey92") +
-  labs(
-    title = "Densidad de Participación Femenina por Deporte",
-    x = "Década",
-    y = "Deporte"
-  ) +
-  theme_minimal() +
-  theme(
-    axis.text.y = element_text(size = 7.5, face = "bold"),
-    axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1),
+  labs(x = "Década",y = "Deporte") + theme_minimal() +
+  theme(axis.text.y = element_text(size = 5, face = "bold"),
+    axis.text.x = element_text(angle = 90, hjust = 1, vjust = 1),
     panel.grid = element_blank(),
-    plot.title = element_text(face = "bold", size = 11),
-    legend.position = "right"
+    legend.position = "bottom"
   )
-
 # Ploteamos juntos
 grafico_pct_mujeres | grafico_heatmap
 ```
