@@ -237,13 +237,13 @@ tiempo.
 En esta sección comparamos tres criterios clásicos de detección de
 valores atípicos, aplicados a la altura, el peso y la edad:
 
--   **Regla de las 3 sigmas:** se consideran atípicos los valores que se
-    alejan de la media más de tres desviaciones típicas.
--   **Filtro de Hampel:** análoga a la anterior, pero usando la mediana
-    y la desviación absoluta mediana (MAD).
--   **Regla del boxplot:** son atípicos los valores situados a más de
-    1,5 veces el rango intercuartílico por debajo del primer cuartil o
-    por encima del tercero.
+- **Regla de las 3 sigmas:** se consideran atípicos los valores que se
+  alejan de la media más de tres desviaciones típicas.
+- **Filtro de Hampel:** análoga a la anterior, pero usando la mediana y
+  la desviación absoluta mediana (MAD).
+- **Regla del boxplot:** son atípicos los valores situados a más de 1,5
+  veces el rango intercuartílico por debajo del primer cuartil o por
+  encima del tercero.
 
 ```{r outliers-metodos, include = T }
 #MÉTODOS DE IDENTIFIACIÓN DE OUTLIERS Y TABLA RESUMEN
@@ -274,8 +274,14 @@ resultado_outliers <- rbind(detectar_outliers(atletas_juegos$Height, "Altura"),d
 resultado_outliers
 
 ```
+
 En la tabla, `n` es el número de datos no perdidos y `nOut` el de
-atípicos detectados. Al analizar la tabla, la regla de las 3 sigmas resulta ser la más permisiva, debido a que los propios valores extremos inflan la media y la desviación típica. El filtro de Hampel arroja cifras similares pero ligeramente superiores al usar métricas robustas. En cambio, el método del Boxplot es el más restrictivo, detectando hasta un 3% de outliers en Edad y casi un 2% en Peso.
+atípicos detectados. Al analizar la tabla, la regla de las 3 sigmas
+resulta ser la más permisiva, debido a que los propios valores extremos
+inflan la media y la desviación típica. El filtro de Hampel arroja
+cifras similares pero ligeramente superiores al usar métricas robustas.
+En cambio, el método del Boxplot es el más restrictivo, detectando hasta
+un 3% de outliers en Edad y casi un 2% en Peso.
 
 Sin embargo, un valor extremo no es necesariamente un error. Un jugador
 de baloncesto muy alto o un lanzador muy pesado son valores extremos si
@@ -332,11 +338,21 @@ atletas_juegos$IMC[outliers_imc]    <- NA
 ```
 
 ## Imputación
-Durante este apartado llevaremos a cabo la imputación de los datos faltantes. Emplearemos el método de la mediana, ya que el método KNN es inviable por el elevado número de instancias en nuestros datos. 
+
+Durante este apartado llevaremos a cabo la imputación de los datos
+faltantes. Emplearemos el método de la mediana, ya que el método KNN es
+inviable por el elevado número de instancias en nuestros datos.
 
 ### Método de la mediana
 
-Hemos decidido emplear este método mediante una imputación de casos similares. Iniciaremos la imputación en el caso más restrictivo: para los casos con datos faltantes, hemos calculado la mediana de las instancias que coinciden en sexo, deporte y año de participación. Progresivamente, reduciremos el nivel de restricción: una segunda imputación donde coincida sexo y deporte; una tercera impitación donde coincida sexo. Esto lo realizaremos para las columnas Altura, Peso y Edad
+Hemos decidido emplear este método mediante una imputación de casos
+similares. Iniciaremos la imputación en el caso más restrictivo: para
+los casos con datos faltantes, hemos calculado la mediana de las
+instancias que coinciden en sexo, deporte y año de participación.
+Progresivamente, reduciremos el nivel de restricción: una segunda
+imputación donde coincida sexo y deporte; una tercera impitación donde
+coincida sexo. Esto lo realizaremos para las columnas Altura, Peso y
+Edad
 
 #### Imputacion de la altura, peso y edad.
 
@@ -381,7 +397,6 @@ for (var in variables) {
 atletas_juegos$IMC_imputed <- atletas_juegos$Weight_imputed / (atletas_juegos$Height_imputed / 100)^2
 
 ```
-
 
 # Resultados (preguntas de investigación)
 
@@ -435,16 +450,15 @@ juegos de la estación de verano han aumentado su participación, pero con
 ciertas bajadas en determinados años. Si buscamos información podemos
 entender estos cambios:
 
--   La primera bajada se puede apreciar en el año 1932. Seguramente, se
-    debe a la crisis de 1929, por la cual muchos atletas no podían
-    permitirse el viaje. Además, esta edición se celebró en Los Ángeles,
-    dificultando el traslado de numerosos atletas. Por estas razones,
-    para no perder representación, muchos países optaron por envíar
-    pequeños grupos. Por ello, el número de países apenas sufrió
-    variación mientras que la cantidad total de atletas cayó a menos de
-    la mitad.
+- La primera bajada se puede apreciar en el año 1932. Seguramente, se
+  debe a la crisis de 1929, por la cual muchos atletas no podían
+  permitirse el viaje. Además, esta edición se celebró en Los Ángeles,
+  dificultando el traslado de numerosos atletas. Por estas razones, para
+  no perder representación, muchos países optaron por envíar pequeños
+  grupos. Por ello, el número de países apenas sufrió variación mientras
+  que la cantidad total de atletas cayó a menos de la mitad.
 
--   
+- 
 
 ```{r p1-mujeres-heatmap, fig.width=14, fig.height=7, include=T}
 
@@ -658,6 +672,7 @@ ggplot(sub, aes(x = NOC, fill = Medal)) +
 ```
 
 ```{r p3-ranking medallero individual}
+#Repetimos mismo proceso con el top 10 de medallas
 ranking_oficial <- medallas %>%
   group_by(Name) %>%
   summarise(
@@ -667,22 +682,24 @@ ranking_oficial <- medallas %>%
     Bronce = sum(Medal == "Bronze", na.rm = TRUE)
   ) %>%
   arrange(desc(Total), desc(Oro), desc(Plata), desc(Bronce))
-
 top10_oficial <- head(ranking_oficial$Name, 10)
-
 sub_oficial <- medallas %>%
   filter(Name %in% top10_oficial)
-
 sub_oficial$Name <- factor(sub_oficial$Name, levels = rev(top10_oficial))
 sub_oficial$Medal <- factor(
   sub_oficial$Medal, 
   levels = c("Bronze", "Silver", "Gold"),
   labels = c("Bronce", "Plata", "Oro") 
 )
-
 ggplot(sub_oficial, aes(x = Name, fill = Medal)) +
   geom_bar() + 
   coord_flip() +
+  #añadimos esto para acortar algunos nombres que contienen comas, paréntesis,etc.
+  scale_x_discrete(labels = function(x) {
+    x <- gsub("\\s*\\(.*?\\)", "", x)
+    x <- gsub("\\s*\".*?\"", "", x)
+    gsub(",.*", "", x)
+  }) +
   scale_fill_manual(values = c(Oro = "gold", Plata = "grey70", Bronce = "#CD7F32")) +
   labs(
     x = "Atleta", 
