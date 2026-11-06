@@ -40,8 +40,8 @@ editor_options:
 ---
 
 ```{r setup, echo = FALSE, include = FALSE}
-knitr::opts_chunk$set(echo = T, warning = FALSE, message = FALSE,fig.width = 5, fig.height = 4, fig.align = "center")
-p <- c("tidyverse", "skimr", "naniar", "janitor", "here", "ggplot2", "mice", "patchwork")
+knitr::opts_chunk$set(echo = T, warning = FALSE, message = FALSE,fig.width = 5, fig.height = 4, fig.align = 'center')
+p <- c('tidyverse', 'skimr', 'naniar', 'janitor', 'here', 'ggplot2', 'mice', 'patchwork', 'kableExtra')
 if (length(f <- setdiff(p, rownames(installed.packages())))) install.packages(f)
 sapply(p, require, character.only = TRUE)
 library(ggplot2)
@@ -52,6 +52,7 @@ library(tidyverse)
 library(skimr)
 library(janitor)
 library(here)
+library(kableExtra)
 
 
 ```
@@ -91,7 +92,11 @@ sumario$topFrac  <- sumario$topCount / nrow(datos)
 sumario$missFreq <- sapply(datos, function(x) sum(is.na(x)))
 sumario$missFrac <- sumario$missFreq / nrow(datos)
 
-knitr::kable(sumario, row.names = FALSE, caption = "Sumario del dataset original")
+knitr::kable(sumario, row.names = FALSE, caption = "Sumario del dataset original") %>%
+  kable_styling(
+    font_size = 7, 
+    latex_options = c("scale_down", "striped", "hold_position")
+  )
 ```
 
 En este sumario podemos observar información sobre cada variable.
@@ -131,7 +136,7 @@ tener una primera visualización sobre los datos y cómo se comportan.
 
 ### Análisis univariante
 
-```{r histogramas, include=T, fig.width=6, fig.height=4}
+```{r histogramas, include=T, fig.width=6, fig.height=2.5}
 # histograma univariante de cada variable numérica
 variables <- c("Age", "Height", "Weight")
 nombres <- c("Edad (años)", "Altura (cm)", "Peso (kg)")
@@ -163,7 +168,7 @@ alargada que supera los 120-150 kg.
 
 ### Análisis bivariante
 
-```{r, include=T, fig.width=4, fig.height=3}
+```{r, include=T, fig.width=4, fig.height=2.5}
 box <- data.frame()
 for (v in c('Height', 'Weight')) {
   tabla <- data.frame(Sex = atletas_juegos$Sex,
@@ -202,7 +207,7 @@ faltantes se concentran en las variables numéricas: *Edad*, *Altura* y
 
 A continuación, estudiamos la evolución de *NA* con el paso de los años:
 
-```{r, include=T}
+```{r, include=T, fig.width=5.5, fig.height=3}
 cols <- c('Age', 'Height', 'Weight')
 perd_anio <- data.frame()
 for (v in cols) {
@@ -221,11 +226,8 @@ ggplot(perd_anio, aes(x = Year, y = Porcentaje, color = Variable, shape = Variab
   scale_linetype_manual(values = c('Edad' = 'solid', 'Altura' = 'solid', 'Peso' = 'dashed')) +
   labs(
     x = 'Año',
-    y = '% de datos perdidos',
-       color = 'Variable',
-       shape = 'Variable',
-       linetype = 'Variable') +
-  ylim(0, 100)
+    y = '% de datos perdidos', color = 'Variable', shape = 'Variable',
+    linetype = 'Variable') +ylim(0, 100) + theme_minimal()
 ```
 
 Podemos comprobar que la mayoría de datos perdidos se concentran en las
@@ -269,10 +271,10 @@ detectar_outliers <- function(x, variable) {
 
   data.frame(Variable = variable, Metodo = c("3 sigma", "Hampel", "Boxplot"),n = length(x),nOut=n_out)
 }
-
 resultado_outliers <- rbind(detectar_outliers(atletas_juegos$Height, "Altura"),detectar_outliers(atletas_juegos$Weight, "Peso"), detectar_outliers(atletas_juegos$Age, "Edad"))
-resultado_outliers
 
+kable(resultado_outliers, format = "latex", booktabs = TRUE) %>%
+  kable_styling(font_size = 8, latex_options = c("striped", "hold_position"))
 ```
 
 En la tabla, `n` es el número de datos no perdidos y `nOut` el de
@@ -292,7 +294,6 @@ pruebas pueden requerir de distintos perfiles físicos, como el
 atletismo.
 
 ```{r, include=F}
-
 #OUTLIERS POR DEPORTE 
 marcas_outliers <- data.frame(Altura = rep(FALSE, nrow(atletas_juegos)),
                               Peso = rep(FALSE, nrow(atletas_juegos)),
@@ -407,7 +408,7 @@ que participaron en cada edición de los juegos olímpicos. Para ello,
 graficaremos el total de países y atletas en función de los años en los
 que se celebraron estos juegos.
 
-```{r p1-datos, fig.width=6, fig.height=3.5,, include=T}
+```{r p1-datos, fig.width=6, fig.height=3, include=T, fig.cap = 'Evolución del número de atletas y países participantes en los Juegos Olímpicos según la estación.'}
 # Datos con los juegos 
 juegos <- unique(atletas_juegos[,c('Games', 'Year', 'Season')])
 juegos <- juegos[order(juegos$Year), ]
@@ -436,19 +437,20 @@ datosP1$Season <- factor(datosP1$Season, levels = c("Summer", "Winter"),
                          labels = c("Verano", "Invierno"))
 datosP1$Indicador <- factor(datosP1$Indicador, levels = etiquetas)
 ggplot(datosP1, aes(x = Year, y = Valor, color = Season)) +
-  geom_vline(xintercept = c(1980, 1984), linetype = "dashed", color = "grey50") +
   geom_line() + geom_point(size = 1) +
+  scale_x_continuous(breaks = c(seq(1896, 2016, by = 16))) +
   facet_wrap(~ Indicador, scales = "free_y") +
-  labs(x = "Año", y = "", color = "Estación") + theme_minimal()
-
+  labs(x = "Año", y = "", color = "Estación") + theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1)
+  )
 ```
 
 Como podemos observar, el número de atletas y países participantes ha
 ido aumentando a lo largo de los años. Sin embargo, podemos apreciar
 ciertos detalles interesantes en nuestra gráfica. Por un lado, los
-juegos en la estación de Invierno han sufrido un crecimiento leve, pero
-monótono, sin ningún cambio drástico durante los años. En cambio, los
-juegos de la estación de verano han aumentado su participación, pero con
+juegos en la estación de Invierno siguen una tendencia monótona creciente, sin ningún cambio drástico durante los años. En cambio, los
+juegos de la estación de Verano han aumentado su participación, pero con
 ciertas bajadas en determinados años. Si buscamos información podemos
 entender estos cambios:
 
@@ -460,43 +462,40 @@ entender estos cambios:
   grupos. Por ello, el número de países apenas sufrió variación mientras
   que la cantidad total de atletas cayó a menos de la mitad.
 
-- 
+- La siguiente bajada ocurre en 1956 en los Juegos Olímpicos de Melbourne. Por la misma razón que en el caso anterior, viajar hasta Australia era muy costoso para la época. A esto se le suma boicots geopolíticos. Muchos países no participaron por la invasión soviética de Hungría, entre ellos España.
 
-```{r p1-mujeres-heatmap, fig.width=6, fig.height=4, include=T}
+- Otra bajada importante tanto a nivel de países como de atletas fue en 1980. Aquí ocurrió el mayor boicot en la historia de los Juegos Olímpicos, celebrado en Moscú. Estados Unidos lideró un boicot masivo en protesta por la invasión soviética de Afganistán. Por lo cual, unos 65 países decidieron no acudir.
 
-#  % Global de mujeres agrupado por DÉCADA
+Ahora, analizamos la presencia femenina en los juegos olímpicos por década. Asi como la densidad de mujeres en algunos deportes.
+
+```{r p1-mujeres-heatmap, fig.width=6, fig.height=3.5, include=T, fig.cap='Evolución de la participación femenina en los Juegos Olímpicos. A la izquierda, porcentaje global de atletas mujeres por década según la estación. A la derecha, mapa de calor con la densidad de participación femenina (%) por década en una selección de deportes'}
+#  % Global de mujeres agrupado por decada
 grafico_pct_mujeres <- atletas_juegos %>%
   group_by(Decada, Season) %>%
   summarise(pct_mujeres = mean(Sex == "F") * 100, .groups = "drop") %>%
   ggplot(aes(x = factor(Decada), y = pct_mujeres, color = Season, group = Season)) +
-  geom_line(linewidth = 0.9) +
-  geom_point(size = 2) +
+  geom_line() +
+  geom_point(size = 1) +
   scale_y_continuous(limits = c(0, 60)) +
+  scale_color_discrete(labels = c("Summer" = "Verano", "Winter" = "Invierno")) +
   labs(x = "Década", y = "% Mujeres", color = "Estación") +
   theme_minimal() +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 1),
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1),
     legend.position = "bottom"
   )
-# Mapa de Calor por deportes seleccionados (por Década)
-deportes_clave <- c(
-  "Synchronized Swimming", "Softball", "Rhythmic Gymnastics", "Figure Skating", 
-  "Gymnastics", "Cycling", "Boxing", "Swimming", "Speed Skating", 
-  "Football", "Fencing", "Shooting", "Hockey", "Sailing")
-deportes_historicos <- atletas_juegos %>%
+# Mapa de Calor por deportes 
+deportes <- atletas_juegos %>%
   group_by(Sport) %>%
   summarise(n_decadas = n_distinct(Decada), .groups = "drop") %>%
   filter(n_decadas >= 10) %>%
   pull(Sport)
 
-deportes_seleccionados <- unique(c(deportes_clave, deportes_historicos))
-
 grafico_heatmap <- atletas_juegos %>%
-  filter(Sport %in% deportes_seleccionados) %>%
+  filter(Sport %in% deportes) %>%
   group_by(Sport, Decada) %>%
   summarise(pct_mujeres = mean(Sex == "F") * 100, .groups = "drop") %>%
-  ggplot(aes(
-    x = factor(Decada), 
-    y = reorder(Sport, pct_mujeres, FUN = median, na.rm = TRUE), 
+  ggplot(aes(x = factor(Decada), 
+             y = reorder(Sport, pct_mujeres, FUN = median, na.rm = TRUE), 
     fill = pct_mujeres)) +
   geom_tile(color = "white", linewidth = 0.2) +
   scale_fill_viridis_c(option = "magma", name = "% Mujeres", limits = c(0, 100), na.value = "grey92") +
@@ -504,11 +503,12 @@ grafico_heatmap <- atletas_juegos %>%
   theme(axis.text.y = element_text(size = 5, face = "bold"),
     axis.text.x = element_text(angle = 90, hjust = 1, vjust = 1),
     panel.grid = element_blank(),
-    legend.position = "bottom"
-  )
+    legend.position = "bottom")
 # Ploteamos juntos
 grafico_pct_mujeres | grafico_heatmap
 ```
+Como podemos observar en la gráfica de la izquierda, la participación femenina en los Juegos ha ido aumentando gradualmente hasta rondar el 45 % actual, aunque, visualizando el mapa de calor, este crecimiento ha seguido ritmos muy distintos según el deporte . Mientras que la natación o la gimnasia dieron entrada a las mujeres a principios del siglo XX, en disciplinas como el ciclismo o el fútbol no hubo categorías femeninas hasta los años 80, y en el boxeo no se logró hasta Londres 2012. En el otro extremo están la gimnasia rítmica o la natación sincronizada, que nacieron directamente como pruebas exclusivamente femeninas.
+
 
 ## P2: Perfil de cuerpo y evolución de la edad por disciplina deportiva
 
@@ -520,35 +520,30 @@ físicos extremos, incluyen categorías de peso (judo y halterofilia) y
 cuentan con un gran volumen de datos histórico.
 
 ```{r p2-biometria-combinada, fig.width=5, fig.height=4, fig.cap="Distribución de la altura (cm) y peso (kg) por deporte y sexo en atletas olímpicos. Los boxplots muestran la mediana, rango intercuartílico y valores atípicos (outliers) identificados."}
-
-# 1. Filtrado y ordenación por mediana de altura
+#Filtrado y ordenación por mediana de altura
 deportes_sel <- c("Basketball", "Gymnastics", "Weightlifting", "Swimming", 
                   "Athletics", "Judo", "Volleyball", "Cycling")
 
 obs <- atletas_juegos[atletas_juegos$Sport %in% deportes_sel, ]
 obs$Sport <- reorder(obs$Sport, obs$Height_imputed, FUN = median)
-
-# 2. Gráfico de Altura
+#Gráfico de Altura
 p_altura <- ggplot(obs, aes(x = Height_imputed, y = Sport, fill = Sex)) +
   stat_boxplot(geom = "errorbar", width = 0.3, position = position_dodge(0.75)) +
   geom_boxplot(outlier.size = 0.4, outlier.alpha = 0.2, position = position_dodge(0.75)) + 
-  scale_fill_manual(values = c("F" = "#E69F00", "M" = "#56B4E9"), labels = c("Femenino", "Masculino")) +
+  scale_fill_manual(values = c("F" = "#F8766D", "M" = "#00BFC4"), labels = c("Femenino", "Masculino")) +
   labs(x = "Altura (cm)", y = "", fill = "Sexo") +
   theme_minimal(base_size = 9) +
   theme(legend.position = "bottom", panel.grid.minor = element_blank())
-
-# 3. Gráfico de Peso
+#Gráfico de Peso
 p_peso <- ggplot(obs, aes(x = Weight_imputed, y = Sport, fill = Sex)) +
   stat_boxplot(geom = "errorbar", width = 0.3, position = position_dodge(0.75)) +
   geom_boxplot(outlier.size = 0.4, outlier.alpha = 0.2, position = position_dodge(0.75)) + 
-  scale_fill_manual(values = c("F" = "#E69F00", "M" = "#56B4E9"), labels = c("Femenino", "Masculino")) +
+  scale_fill_manual(values = c("F" = "#F8766D", "M" = "#00BFC4"), labels = c("Femenino", "Masculino")) +
   labs(x = "Peso (kg)", y = "", fill = "Sexo") +
   theme_minimal(base_size = 9) +
   theme(legend.position = "bottom", 
         panel.grid.minor = element_blank(),
         axis.text.y = element_blank())
-
-# 4. Combinación horizontal compacta
 (p_altura + p_peso) + plot_layout(guides = "collect") & theme(legend.position = "bottom")
 
 ```
@@ -581,19 +576,17 @@ el control mental y la experiencia como el tiro, la hípica y las
 competiciones de arte, pasando por deportes de equipo y de resistencia
 tradicional.
 
-```{r p2-mapa-edad, fig.width=5, fig.height=4, fig.cap="Evolución histórica de la edad mediana de los atletas por deporte y década en los Juegos Olímpicos."}
+```{r p2-mapa-edad, fig.width=5, fig.height=3, fig.cap="Evolución histórica de la edad mediana de los atletas por deporte y década en los Juegos Olímpicos."}
 # Selección de 15 deportes para el análisis temporal de edad
 deportes_edad <- c("Gymnastics", "Swimming", "Athletics", "Rowing", "Cycling", 
                    "Basketball", "Judo", "Weightlifting", "Football", "Fencing", 
                    "Sailing", "Shooting", "Equestrianism", "Art Competitions", "Tug-Of-War")
 
 edad_obs <- atletas_juegos[atletas_juegos$Sport %in% deportes_edad, ]
-
 mediana_edad <- aggregate(Age_imputed ~ Sport + Decada, data = edad_obs, FUN = median)
 n_edad <- aggregate(Age_imputed ~ Sport + Decada, data = edad_obs, FUN = length)
 names(mediana_edad)[3] <- "Mediana"
 mediana_edad$n <- n_edad$Age_imputed
-
 # Filtrar grupos pequeños y reordenar por longevidad
 mediana_edad <- mediana_edad[mediana_edad$n >= 10, ]
 mediana_edad$Sport <- reorder(mediana_edad$Sport, mediana_edad$Mediana, FUN = median)
@@ -626,35 +619,28 @@ en la medicina deportiva.
 
 ## P3: ¿Quién concentra las medallas?
 
-```{r p3-datos,include=T}
+```{r p3-datos,include=T, fig.width=4, fig.height=2}
 #En esta sección trabajaremos sobre todo con el df medallero
-
 #Asignamos Equipo Unificado de 1992 a la URSS
 medallero$NOC[medallero$NOC == "EUN"] <- "URS"
-
 #Asignamos RDA Y RFA a Alemania
 medallero$NOC[medallero$NOC %in% c("FRG", "GDR")] <- "GER"
-
-
 #sacamos los paises top 10 de medallas
 medallas_pais <- sort(table(medallero$NOC), decreasing = TRUE)
 top10 <- names(medallas_pais)[1:10]
-
 #graficamos el top 10 por tipo de medalla
 sub <- medallero[medallero$NOC %in% top10, ] #guardamos los registros del top 10
 sub$NOC <- factor(sub$NOC, levels = rev(top10)) #convertimos a factor
 sub$Medal <- factor(sub$Medal, levels = c("Bronze", "Silver", "Gold"), labels = c("Bronce", "Plata", "Oro")) #convertimos a factor y ordenamos
-
 #finalmente ploteamos
 ggplot(sub, aes(x = NOC, fill = Medal)) +
   geom_bar() + coord_flip() +
   scale_fill_manual(values = c(Oro = "gold", Plata = "grey70", Bronce = "#CD7F32")) +
   labs(x = "País", y = "Medallas", fill = "Medalla") +
   theme_minimal()
-
 ```
 
-```{r p3-ranking medallero individual}
+```{r p3-ranking medallero individual, fig.width=5, fig.height=2}
 #Repetimos mismo proceso con el top 10 de medallas
 ranking_oficial <- medallas %>%
   group_by(Name) %>%
@@ -690,8 +676,6 @@ ggplot(sub_oficial, aes(x = Name, fill = Medal)) +
     fill = "Medalla"
   ) +
   theme_minimal()
-
-
 ```
 
 ## Aportación adicional
