@@ -2,7 +2,7 @@
 title: "120 años de historia olímpica"
 author:
   - name: Adela Ayala Cutillas
-    affil: 1,*
+    affil: 1
   - name: Álvaro Egea Hernández
     affil: 1
   - name: Daniel Arenas Gracia
@@ -449,7 +449,8 @@ ggplot(datosP1, aes(x = Year, y = Valor, color = Season)) +
 Como podemos observar, el número de atletas y países participantes ha
 ido aumentando a lo largo de los años. Sin embargo, podemos apreciar
 ciertos detalles interesantes en nuestra gráfica. Por un lado, los
-juegos en la estación de Invierno siguen una tendencia monótona creciente, sin ningún cambio drástico durante los años. En cambio, los
+juegos en la estación de Invierno siguen una tendencia monótona
+creciente, sin ningún cambio drástico durante los años. En cambio, los
 juegos de la estación de Verano han aumentado su participación, pero con
 ciertas bajadas en determinados años. Si buscamos información podemos
 entender estos cambios:
@@ -462,11 +463,20 @@ entender estos cambios:
   grupos. Por ello, el número de países apenas sufrió variación mientras
   que la cantidad total de atletas cayó a menos de la mitad.
 
-- La siguiente bajada ocurre en 1956 en los Juegos Olímpicos de Melbourne. Por la misma razón que en el caso anterior, viajar hasta Australia era muy costoso para la época. A esto se le suma boicots geopolíticos. Muchos países no participaron por la invasión soviética de Hungría, entre ellos España.
+- La siguiente bajada ocurre en 1956 en los Juegos Olímpicos de
+  Melbourne. Por la misma razón que en el caso anterior, viajar hasta
+  Australia era muy costoso para la época. A esto se le suma boicots
+  geopolíticos. Muchos países no participaron por la invasión soviética
+  de Hungría, entre ellos España.
 
-- Otra bajada importante tanto a nivel de países como de atletas fue en 1980. Aquí ocurrió el mayor boicot en la historia de los Juegos Olímpicos, celebrado en Moscú. Estados Unidos lideró un boicot masivo en protesta por la invasión soviética de Afganistán. Por lo cual, unos 65 países decidieron no acudir.
+- Otra bajada importante tanto a nivel de países como de atletas fue
+  en 1980. Aquí ocurrió el mayor boicot en la historia de los Juegos
+  Olímpicos, celebrado en Moscú. Estados Unidos lideró un boicot masivo
+  en protesta por la invasión soviética de Afganistán. Por lo cual, unos
+  65 países decidieron no acudir.
 
-Ahora, analizamos la presencia femenina en los juegos olímpicos por década. Asi como la densidad de mujeres en algunos deportes.
+Ahora, analizamos la presencia femenina en los juegos olímpicos por
+década. Asi como la densidad de mujeres en algunos deportes.
 
 ```{r p1-mujeres-heatmap, fig.width=6, fig.height=3.5, include=T, fig.cap='Evolución de la participación femenina en los Juegos Olímpicos. A la izquierda, porcentaje global de atletas mujeres por década según la estación. A la derecha, mapa de calor con la densidad de participación femenina (%) por década en una selección de deportes'}
 #  % Global de mujeres agrupado por decada
@@ -507,8 +517,16 @@ grafico_heatmap <- atletas_juegos %>%
 # Ploteamos juntos
 grafico_pct_mujeres | grafico_heatmap
 ```
-Como podemos observar en la gráfica de la izquierda, la participación femenina en los Juegos ha ido aumentando gradualmente hasta rondar el 45 % actual, aunque, visualizando el mapa de calor, este crecimiento ha seguido ritmos muy distintos según el deporte . Mientras que la natación o la gimnasia dieron entrada a las mujeres a principios del siglo XX, en disciplinas como el ciclismo o el fútbol no hubo categorías femeninas hasta los años 80, y en el boxeo no se logró hasta Londres 2012. En el otro extremo están la gimnasia rítmica o la natación sincronizada, que nacieron directamente como pruebas exclusivamente femeninas.
 
+Como podemos observar en la gráfica de la izquierda, la participación
+femenina en los Juegos ha ido aumentando gradualmente hasta rondar el 45
+% actual, aunque, visualizando el mapa de calor, este crecimiento ha
+seguido ritmos muy distintos según el deporte . Mientras que la natación
+o la gimnasia dieron entrada a las mujeres a principios del siglo XX, en
+disciplinas como el ciclismo o el fútbol no hubo categorías femeninas
+hasta los años 80, y en el boxeo no se logró hasta Londres 2012. En el
+otro extremo están la gimnasia rítmica o la natación sincronizada, que
+nacieron directamente como pruebas exclusivamente femeninas.
 
 ## P2: Perfil de cuerpo y evolución de la edad por disciplina deportiva
 
@@ -640,6 +658,13 @@ ggplot(sub, aes(x = NOC, fill = Medal)) +
   theme_minimal()
 ```
 
+El medallero histórico está encabezado con claridad por Estados Unidos
+(2823). En un segundo escalón se sitúan Alemania (1766) y la URSS
+(1332). Se ha de tener en cuenta que para el análisis, se han agrupado
+las medallas de la RFA y RDA en Alemania, ya que comparten la misma base
+histórica y demográfica. Además, sumamos las medallas del Equipo
+Unificado a la URSS.
+
 ```{r p3-ranking medallero individual, fig.width=5, fig.height=2}
 #Repetimos mismo proceso con el top 10 de medallas
 ranking_oficial <- medallas %>%
@@ -678,8 +703,27 @@ ggplot(sub_oficial, aes(x = Name, fill = Medal)) +
   theme_minimal()
 ```
 
-## Aportación adicional
+A nivel individual, Michael Phelps lidera con 28 medallas, diez más que
+la segunda, Larisa Latynina. Entre los diez primeros hay 4 gimnastas y 2
+nadadores; este patrón es esperable, ya que los deportes con muchas
+pruebas permiten a un mismo atleta acumular varias medallas en una
+edición.
 
 # Discusión
+
+## P3
+
+El dominio histórico de potencias como Estados Unidos, Alemania y la
+URSS sugiere que el éxito olímpico depende de una fuerte inversión y
+organización estatal. Sin embargo, al carecer de datos como el PIB o la
+población, esto se mantiene como hipótesis, abriendo la puerta a futuras
+investigaciones que crucen estas variables.
+
+A nivel individual, la prevalencia de nadadores y gimnastas confirma el
+impacto decisivo de los deportes "multimedalla" en la élite histórica.
+
+Finalmente, cabe señalar como limitación el corte temporal de los datos
+(hasta Río 2016), lo que provoca que los rankings expuestos en el
+análisis no coincidan con los actuales.
 
 # Conclusiones
