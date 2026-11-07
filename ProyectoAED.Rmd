@@ -28,6 +28,7 @@ header-includes:
   - \AtBeginEnvironment{Shaded}{\scriptsize}
   - \AtBeginDocument{\small}
   - \linespread{0.95}
+  - \usepackage{float}
 output: 
   rticles::mdpi_article:
     extra_dependencies: longtable
@@ -125,7 +126,7 @@ tener una primera visualización sobre los datos y cómo se comportan.
 
 ### Análisis univariante
 
-```{r histogramas, include=T, fig.width=6, fig.height=2.5, fig.cap='Distribución de frecuencia de la edad, altura y peso de los atletas olímpicos.'}
+```{r histogramas, include=T, fig.width=6, fig.height=1.5,fig.pos="H", fig.cap='Distribución de frecuencia de la edad, altura y peso de los atletas olímpicos.'}
 # histograma univariante de cada variable numérica
 variables <- c("Age", "Height", "Weight")
 nombres <- c("Edad (años)", "Altura (cm)", "Peso (kg)")
@@ -158,13 +159,9 @@ Finalmente, aunque las distribuciones de altura y peso muestran diferencias evid
 
 ## Perdidos
 
-Tras obtener los resultados del sumario, podemos ver que los datos
-faltantes se concentran en las variables numéricas: *Edad*, *Altura* y
-*Peso.*
+Tras la inspección inicial, los datos faltantes se concentran en las variables numéricas: *Edad*, *Altura* y *Peso*.
 
-A continuación, estudiamos la evolución de *NA* con el paso de los años:
-
-```{r, include=T, fig.width=5.5, fig.height=3, fig.cap='Evolución temporal del porcentaje de datos perdidos por variable.'}
+```{r, include=T, fig.width=5.5, fig.height=2.5,fig.pos="H", fig.cap='Evolución temporal del porcentaje de datos perdidos por variable.'}
 cols <- c('Age', 'Height', 'Weight')
 perd_anio <- data.frame()
 for (v in cols) {
@@ -187,22 +184,11 @@ ggplot(perd_anio, aes(x = Year, y = Porcentaje, color = Variable, shape = Variab
     linetype = 'Variable') +ylim(0, 100) + theme_minimal()
 ```
 
-Podemos comprobar que la mayoría de datos perdidos se concentran en las
-décadas iniciales, con una clara tendencia decreciente con el paso del
-tiempo.
+Como muestra la Figura \ref{fig:perdidos-evolucion}, la mayor proporción de registros faltantes se concentra en las primeras ediciones olímpicas, presentando una clara tendencia decreciente a medida que mejoró el registro histórico.
 
 ## Outlier
 
-En esta sección comparamos tres criterios clásicos de detección de
-valores atípicos, aplicados a la altura, el peso y la edad:
-
-- **Regla de las 3 sigmas:** se consideran atípicos los valores que se
-  alejan de la media más de tres desviaciones típicas.
-- **Filtro de Hampel:** análoga a la anterior, pero usando la mediana y
-  la desviación absoluta mediana (MAD).
-- **Regla del boxplot:** son atípicos los valores situados a más de 1,5
-  veces el rango intercuartílico por debajo del primer cuartil o por
-  encima del tercero.
+Evaluamos la presencia de valores atípicos en las variables biométricas y la edad mediante tres criterios clásicos: la regla de las 3 sigmas, el filtro de Hampel y el método del boxplot.
 
 ```{r outliers-metodos, include = T }
 #MÉTODOS DE IDENTIFIACIÓN DE OUTLIERS Y TABLA RESUMEN
@@ -235,21 +221,7 @@ kable(resultado_outliers, format = "latex", booktabs = TRUE,
   kable_styling(font_size = 8, latex_options = c("striped", "hold_position"))
 ```
 
-En la tabla, `n` es el número de datos no perdidos y `nOut` el de
-atípicos detectados. Al analizar la tabla, la regla de las 3 sigmas
-resulta ser la más permisiva, debido a que los propios valores extremos
-inflan la media y la desviación típica. El filtro de Hampel arroja
-cifras similares pero ligeramente superiores al usar métricas robustas.
-En cambio, el método del Boxplot es el más restrictivo, detectando hasta
-un 3% de outliers en Edad y casi un 2% en Peso.
-
-Sin embargo, un valor extremo no es necesariamente un error. Un jugador
-de baloncesto muy alto o un lanzador muy pesado son valores extremos si
-se comparan con todos los atletas, pero son perfectamente normales
-dentro de su deporte. Al aplicar el criterio del boxplot por deporte
-obtenemos que los deportes con mas outliers son aquellos en los que las
-pruebas pueden requerir de distintos perfiles físicos, como el
-atletismo.
+Como muestra la Tabla \ref{tab:outliers-metodos}, el método del boxplot es el más estricto, detectando hasta un 3% de valores atípicos en Edad y un 2% en Peso, mientras que las 3 sigmas son más permisivas porque los datos extremos inflan la media. Sin embargo, en el ámbito olímpico un valor extremo suele responder al cuerpo típico de cada deporte (como en baloncesto o lanzamiento) y no a un error. Por ello, mantuvimos estos registros y solo eliminamos casos con valores de IMC imposibles (<12 o >50).
 
 ```{r, include=F}
 #OUTLIERS POR DEPORTE 
@@ -277,14 +249,6 @@ deportes_edad_extrema
 deportes_altura_extrema
 ```
 
-Como conclusión, los valores atípicos no se han eliminado: tras
-comprobar que muchos corresponden a atletas reales con perfiles propios
-de su deporte, solo vamos a tratar como errores los detectados mediante
-el IMC (altura y peso incompatibles entre sí). Los demás se mantienen en
-el análisis.
-
-El criterio utilizado para eliminar o no outliers se basa en si el valor
-de IMC es menor de 12 o mayor de 50, considerados valores imposibles.
 
 ```{r, include=FALSE}
 #Asignamos NA tanto en peso como en altura en estas variables
@@ -298,22 +262,13 @@ atletas_juegos$IMC[outliers_imc]    <- NA
 
 ## Imputación
 
-Durante este apartado llevaremos a cabo la imputación de los datos
-faltantes. Emplearemos el método de la mediana, ya que el método KNN es
-inviable por el elevado número de instancias en nuestros datos.
+Imputamos los valores faltantes en *Edad*, *Altura* y *Peso* mediante la mediana de casos similares, descartando el método KNN por el elevado volumen de datos. Para conservar el perfil físico específico de cada disciplina y época, aplicamos un criterio jerárquico en tres niveles:
 
-### Método de la mediana
+- **Sexo, deporte y año:** Mediana del grupo exacto en la edición correspondiente.
+- **Sexo y deporte:** Aplicado si no existen suficientes registros en ese año concreto.
+- **Sexo:** Criterio residual para los casos restantes.
 
-Hemos decidido emplear este método mediante una imputación de casos
-similares. Iniciaremos la imputación en el caso más restrictivo: para
-los casos con datos faltantes, hemos calculado la mediana de las
-instancias que coinciden en sexo, deporte y año de participación.
-Progresivamente, reduciremos el nivel de restricción: una segunda
-imputación donde coincida sexo y deporte; una tercera impitación donde
-coincida sexo. Esto lo realizaremos para las columnas Altura, Peso y
-Edad. Posteriormente, recalcularemos el IMC con los datos imputados.
-
-#### Imputacion de la altura, peso y edad.
+Tras completar la imputación de la altura y el peso, recalculamos la variable sintética del *IMC*.
 
 ```{r imputaciones, include=TRUE}
 variables <- c("Height", "Weight", "Age")
@@ -361,7 +316,7 @@ que participaron en cada edición de los juegos olímpicos. Para ello,
 graficaremos el total de países y atletas en función de los años en los
 que se celebraron estos juegos.
 
-```{r p1-datos, fig.width=6, fig.height=3, include=T, fig.cap = 'Evolución del número de atletas y países participantes en los Juegos Olímpicos según la estación.'}
+```{r p1-datos, fig.width=6, fig.pos="H",fig.height=3, include=T, fig.cap = 'Evolución del número de atletas y países participantes en los Juegos Olímpicos según la estación.'}
 # Datos con los juegos 
 juegos <- unique(atletas_juegos[,c('Games', 'Year', 'Season')])
 juegos <- juegos[order(juegos$Year), ]
@@ -417,7 +372,7 @@ total de atletas se redujo respecto a la edición anterior, mientras que el núm
 Ahora, analizamos la presencia femenina en los juegos olímpicos por
 década. Asi como la densidad de mujeres en algunos deportes.
 
-```{r p1-mujeres-heatmap, fig.width=6, fig.height=3.5, include=T, fig.cap='Evolución de la participación femenina en los Juegos Olímpicos. A la izquierda, porcentaje global de atletas mujeres por década según la estación. A la derecha, mapa de calor con la densidad de participación femenina (%) por década en una selección de deportes'}
+```{r p1-mujeres-heatmap, fig.width=6, fig.pos="H",fig.height=3.5, include=T, fig.cap='Evolución de la participación femenina en los Juegos Olímpicos. A la izquierda, porcentaje global de atletas mujeres por década según la estación. A la derecha, mapa de calor con la densidad de participación femenina (%) por década en una selección de deportes'}
 #  % Global de mujeres agrupado por decada
 grafico_pct_mujeres <- atletas_juegos %>%
   group_by(Decada, Season) %>%
@@ -470,7 +425,7 @@ y ciclismo. Escogimos estas disciplinas porque presentan contrastes
 físicos extremos, incluyen categorías de peso (judo y halterofilia) y
 cuentan con un gran volumen de datos histórico.
 
-```{r p2-biometria-combinada, fig.width=5, fig.height=4, fig.cap="Distribución de la altura (cm) y peso (kg) por deporte y sexo en atletas olímpicos. Los boxplots muestran la mediana, rango intercuartílico y valores atípicos identificados."}
+```{r p2-biometria-combinada, fig.width=5, fig.pos="H",fig.height=4, fig.cap="Distribución de la altura (cm) y peso (kg) por deporte y sexo en atletas olímpicos. Los boxplots muestran la mediana, rango intercuartílico y valores atípicos identificados."}
 #Filtrado y ordenación por mediana de altura
 deportes_sel <- c("Basketball", "Gymnastics", "Weightlifting", "Swimming", 
                   "Athletics", "Judo", "Volleyball", "Cycling")
@@ -527,7 +482,7 @@ el control mental y la experiencia como el tiro, la hípica y las
 competiciones de arte, pasando por deportes de equipo y de resistencia
 tradicional.
 
-```{r p2-mapa-edad, fig.width=5, fig.height=3, fig.cap="Evolución histórica de la edad mediana de los atletas por deporte y década en los Juegos Olímpicos."}
+```{r p2-mapa-edad, fig.width=5, fig.height=3,fig.pos="H", fig.cap="Evolución histórica de la edad mediana de los atletas por deporte y década en los Juegos Olímpicos."}
 # Selección de 15 deportes para el análisis temporal de edad
 deportes_edad <- c("Gymnastics", "Swimming", "Athletics", "Rowing", "Cycling", 
                    "Basketball", "Judo", "Weightlifting", "Football", "Fencing", 
@@ -570,7 +525,7 @@ en la medicina deportiva.
 
 ## P3: ¿Quién concentra las medallas?
 
-```{r p3-datos,include=T, fig.width=4, fig.height=2, fig.cap='Top 10 países según el número de medallas.'}
+```{r p3-datos,include=T, fig.width=4, fig.height=2,fig.pos="H", fig.cap='Top 10 países según el número de medallas.'}
 #En esta sección trabajaremos sobre todo con el df medallero
 #Asignamos Equipo Unificado de 1992 a la URSS
 medallero$NOC[medallero$NOC == "EUN"] <- "URS"
@@ -606,7 +561,7 @@ las medallas de la RFA y RDA en Alemania, ya que comparten la misma base
 histórica y demográfica. Además, sumamos las medallas del Equipo
 Unificado a la URSS.
 
-```{r p3-ranking-medallero-individual, fig.width=5, fig.height=2, fig.cap='Top 10 atletas con más medallas.'}
+```{r p3-ranking-medallero-individual, fig.width=5, fig.pos="H",fig.height=2, fig.cap='Top 10 atletas con más medallas.'}
 #Repetimos mismo proceso con el top 10 de medallas
 ranking_oficial <- medallas %>%
   group_by(Name) %>%
