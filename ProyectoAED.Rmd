@@ -119,12 +119,7 @@ medallero$Decada <- floor(medallero$Year / 10) *10
 atletas_juegos <- datos[!duplicated(datos[, c("ID", "Games")]), ]
 ```
 
-## Exploración inicial
-
-En esta sección llevamos a cabo análisis univariante y bivariante para
-tener una primera visualización sobre los datos y cómo se comportan.
-
-### Análisis univariante
+## Exploración inicial: Análisis univariante
 
 ```{r histogramas, include=T, fig.width=5.5, fig.height=1.5,fig.pos="H", fig.cap='Distribución de frecuencia de la edad, altura y peso de los atletas olímpicos.'}
 # histograma univariante de cada variable numérica
@@ -143,15 +138,11 @@ ggplot(dft, aes(x = Valor)) +
   labs(x = "", y = "Frecuencia") + theme_minimal()
 ```
 
-En cuanto a la Edad, la variable presenta una asimetría positiva con una
-mayor densidad entre los 20 y 28 años y un pico pronunciado alrededor de
-los 23-25 años. Además, podemos observar una caída a partir de los 30
-años pero conservando una cola derecha que llega hasta los 50-70 años.
-Por otro lado, la Altura parece presentar un comportamiento gaussiano,
-donde media y mediana convergen cerca de los 175-178 cm. Finalmente, el
-Peso vuelve a mostrar una distribución sesgada a la derecha agrupando
-las principales frecuencias entre los 60 y 80 kg y también, con una cola
-alargada que supera los 120-150 kg.
+Como muestra la Figura \ref{fig:histogramas}, los datos reflejan los distintos perfiles físicos del deporte olímpico:
+
+- **Edad:** La mayoría de los atletas compite entre los 20 y 28 años (con un pico entre los 23 y 25), aunque la cola se alarga hasta los 50-70 años.
+- **Altura:** Sigue una distribución simétrica en forma de campana, donde la media y la mediana coinciden entre los 175 y 178 cm.
+- **Peso:** Se concentra principalmente entre los 60 y 80 kg, con valores extremos que superan los 120-150 kg.
 
 Finalmente, aunque las distribuciones de altura y peso muestran diferencias evidentes al segmentar por sexo, su análisis bivariante en profundidad se abordará en la Pregunta 2.
 
