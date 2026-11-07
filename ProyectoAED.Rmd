@@ -439,34 +439,8 @@ ggplot(datosP1, aes(x = Year, y = Valor, color = Season)) +
   )
 ```
 
-Como podemos observar, el número de atletas y países participantes ha
-ido aumentando a lo largo de los años. Sin embargo, podemos apreciar
-ciertos detalles interesantes en nuestra gráfica. Por un lado, los
-juegos en la estación de Invierno siguen una tendencia monótona
-creciente, sin ningún cambio drástico durante los años. En cambio, los
-juegos de la estación de Verano han aumentado su participación, pero con
-ciertas bajadas en determinados años. Si buscamos información podemos
-entender estos cambios:
+La participación en los Juegos de Invierno presenta una tendencia monótona creciente y estable a lo largo del periodo analizado. Por el contrario, los Juegos de Verano muestran un crecimiento sostenido pero interrumpido por tres caídas pronunciadas en los años 1932, 1956 y 1980. En las ediciones de 1932 y 1956 destaca un comportamiento divergente: el total de atletas se redujo a menos de la mitad respecto a la edición anterior, mientras que el número de países representados apenas sufrió variación. En 1980, los descensos afectaron de forma simultánea tanto al volumen de deportistas como al número de delegaciones nacionales.
 
-- La primera bajada se puede apreciar en el año 1932. Seguramente, se
-  debe a la crisis de 1929, por la cual muchos atletas no podían
-  permitirse el viaje. Además, esta edición se celebró en Los Ángeles,
-  dificultando el traslado de numerosos atletas. Por estas razones, para
-  no perder representación, muchos países optaron por envíar pequeños
-  grupos. Por ello, el número de países apenas sufrió variación mientras
-  que la cantidad total de atletas cayó a menos de la mitad.
-
-- La siguiente bajada ocurre en 1956 en los Juegos Olímpicos de
-  Melbourne. Por la misma razón que en el caso anterior, viajar hasta
-  Australia era muy costoso para la época. A esto se le suma boicots
-  geopolíticos. Muchos países no participaron por la invasión soviética
-  de Hungría, entre ellos España.
-
-- Otra bajada importante tanto a nivel de países como de atletas fue
-  en 1980. Aquí ocurrió el mayor boicot en la historia de los Juegos
-  Olímpicos, celebrado en Moscú. Estados Unidos lideró un boicot masivo
-  en protesta por la invasión soviética de Afganistán. Por lo cual, unos
-  65 países decidieron no acudir.
 
 Ahora, analizamos la presencia femenina en los juegos olímpicos por
 década. Asi como la densidad de mujeres en algunos deportes.
@@ -511,15 +485,7 @@ grafico_heatmap <- atletas_juegos %>%
 grafico_pct_mujeres | grafico_heatmap
 ```
 
-Como podemos observar en la gráfica de la izquierda, la participación
-femenina en los Juegos ha ido aumentando gradualmente hasta rondar el 45
-% actual, aunque, visualizando el mapa de calor, este crecimiento ha
-seguido ritmos muy distintos según el deporte . Mientras que la natación
-o la gimnasia dieron entrada a las mujeres a principios del siglo XX, en
-disciplinas como el ciclismo o el fútbol no hubo categorías femeninas
-hasta los años 80, y en el boxeo no se logró hasta Londres 2012. En el
-otro extremo están la gimnasia rítmica o la natación sincronizada, que
-nacieron directamente como pruebas exclusivamente femeninas.
+La presencia femenina creció hasta el 45% actual, aunque con ritmos muy desiguales: la natación y la gimnasia abrieron categorías a principios del siglo XX, el ciclismo y el fútbol en los años 80, y el boxeo en 2012. En el otro extremo, modalidades como la natación sincronizada o la gimnasia rítmica nacieron como 100% femeninas.
 
 ## P2: Perfil de cuerpo y evolución de la edad por disciplina deportiva
 
@@ -703,6 +669,13 @@ pruebas permiten a un mismo atleta acumular varias medallas en una
 edición.
 
 # Discusión
+
+## P1
+
+Como muestra la Figura \ref{fig:p1-datos}, las caídas en la participación en los Juegos de Verano reflejan el impacto de crisis económicas y conflictos geopolíticos del siglo XX. En Los Ángeles 1932, la Gran Depresión de 1929 y los altos costes de viaje obligaron a enviar delegaciones reducidas para mantener la representación sin incurrir en grandes gastos, explicando la caída de atletas sin perder países. En Melbourne 1956, al coste del desplazamiento a Australia se sumaron las tensiones internacionales por la invasión soviética de Hungría, motivando el boicot de varios países (entre ellos España). Finalmente, en Moscú 1980 ocurrió el mayor boicot de la historia, liderado por EE. UU. tras la invasión soviética de Afganistán, provocando la ausencia de 65 delegaciones.
+
+Por otra parte, la inclusión desigual según el deporte que se observa en la Figura \ref{fig:p1-mujeres-heatmap} evidencia las barreras normativas y los estereotipos históricos de las federaciones, que retrasaron las disciplinas de contacto frente a las estéticas. Por tanto, alcanzar la paridad actual (~45%) responde al reciente impulso regulatorio del COI y no a un desarrollo homogéneo entre deportes.
+
 
 ## P3
 
