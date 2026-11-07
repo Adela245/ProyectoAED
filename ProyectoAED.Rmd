@@ -591,7 +591,9 @@ y no a un desarrollo homogéneo entre deportes.
 
 ## P2
 
-Los resultados de la Figura \ref{fig:p2-biometria-combinada} confirman que el deporte de élite "selecciona" a los atletas según su físico para darles ventaja en su disciplina. En el caso del atletismo, la gran cantidad de valores extremos demuestra que no se puede analizar como un único deporte, ya que engloba cuerpos totalmente opuestos.
+Los resultados de la Figur \ref{fig:p2-biometria-combinada} confirman que el deporte de élite "selecciona" a los atletas según su físico para darles ventaja en su disciplina. En el caso del atletismo, la gran cantidad de valores extremos demuestra que no se puede analizar como un único deporte, ya que engloba cuerpos totalmente opuestos.
+
+En cuanto a la edad (Figura \ref{fig:p2-mapa-edad}), el contraste entre deportes de potencia/agilidad (gimnasia, natación) y deportes de precisión o estrategia (hípica, tiro) enseña cómo el desgaste físico limita la carrera en unos casos, mientras que en otros la experiencia es lo que marca la diferencia. Por último, que la edad media haya ido aumentando gradualmente desde los años 90 en deportes como ciclismo o remo se debe a que hoy en día los atletas se dedican a esto al 100%, entrenan mejor y cuentan con más apoyo médico, lo que les permite competir al máximo nivel durante más años.
 
 
 ## P3
