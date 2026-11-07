@@ -126,7 +126,7 @@ tener una primera visualización sobre los datos y cómo se comportan.
 
 ### Análisis univariante
 
-```{r histogramas, include=T, fig.width=6, fig.height=1.5,fig.pos="H", fig.cap='Distribución de frecuencia de la edad, altura y peso de los atletas olímpicos.'}
+```{r histogramas, include=T, fig.width=5.5, fig.height=1.5,fig.pos="H", fig.cap='Distribución de frecuencia de la edad, altura y peso de los atletas olímpicos.'}
 # histograma univariante de cada variable numérica
 variables <- c("Age", "Height", "Weight")
 nombres <- c("Edad (años)", "Altura (cm)", "Peso (kg)")
@@ -161,7 +161,7 @@ Finalmente, aunque las distribuciones de altura y peso muestran diferencias evid
 
 Tras la inspección inicial, los datos faltantes se concentran en las variables numéricas: *Edad*, *Altura* y *Peso*.
 
-```{r, include=T, fig.width=5.5, fig.height=2.5,fig.pos="H", fig.cap='Evolución temporal del porcentaje de datos perdidos por variable.'}
+```{r, include=T, fig.width=5, fig.height=2,fig.pos="H", fig.cap='Evolución temporal del porcentaje de datos perdidos por variable.'}
 cols <- c('Age', 'Height', 'Weight')
 perd_anio <- data.frame()
 for (v in cols) {
@@ -316,7 +316,7 @@ que participaron en cada edición de los juegos olímpicos. Para ello,
 graficaremos el total de países y atletas en función de los años en los
 que se celebraron estos juegos.
 
-```{r p1-datos, fig.width=5.8, fig.pos="H",fig.height=2.5, include=T, fig.cap = 'Evolución del número de atletas y países participantes en los Juegos Olímpicos según la estación.'}
+```{r p1-datos, fig.width=5.8, fig.pos="H",fig.height=2, include=T, fig.cap = 'Evolución del número de atletas y países participantes en los Juegos Olímpicos según la estación.'}
 # Datos con los juegos 
 juegos <- unique(atletas_juegos[,c('Games', 'Year', 'Season')])
 juegos <- juegos[order(juegos$Year), ]
@@ -372,7 +372,7 @@ total de atletas se redujo respecto a la edición anterior, mientras que el núm
 Ahora, analizamos la presencia femenina en los juegos olímpicos por
 década. Asi como la densidad de mujeres en algunos deportes.
 
-```{r p1-mujeres-heatmap, fig.width=5.8, fig.pos="H",fig.height=3, include=T, fig.cap='Evolución de la participación femenina en los Juegos Olímpicos. A la izquierda, porcentaje global de atletas mujeres por década según la estación. A la derecha, mapa de calor con la densidad de participación femenina (%) por década en una selección de deportes'}
+```{r p1-mujeres-heatmap, fig.width=5.8, fig.pos="H",fig.height=2.6, include=T, fig.cap='Evolución de la participación femenina en los Juegos Olímpicos. A la izquierda, porcentaje global de atletas mujeres por década según la estación. A la derecha, mapa de calor con la densidad de participación femenina (%) por década en una selección de deportes'}
 #  % Global de mujeres agrupado por decada
 grafico_pct_mujeres <- atletas_juegos %>%
   group_by(Decada, Season) %>%
@@ -404,7 +404,7 @@ grafico_heatmap <- atletas_juegos %>%
   geom_tile(color = "white", linewidth = 0.2) +
   scale_fill_viridis_c(option = "magma", name = "% Mujeres", limits = c(0, 100), na.value = "grey92") +
   labs(x = "Década",y = "Deporte") + theme_minimal() +
-  theme(axis.text.y = element_text(size = 5, face = "bold"),
+  theme(axis.text.y = element_text(size = 4, face = "bold"),
     axis.text.x = element_text(angle = 90, hjust = 1, vjust = 1),
     panel.grid = element_blank(),
     legend.position = "bottom")
@@ -482,7 +482,7 @@ el control mental y la experiencia como el tiro, la hípica y las
 competiciones de arte, pasando por deportes de equipo y de resistencia
 tradicional.
 
-```{r p2-mapa-edad, fig.width=5, fig.height=2.5,fig.pos="H", fig.cap="Evolución histórica de la edad mediana de los atletas por deporte y década en los Juegos Olímpicos."}
+```{r p2-mapa-edad, fig.width=5, fig.height=2,fig.pos="H", fig.cap="Evolución histórica de la edad mediana de los atletas por deporte y década en los Juegos Olímpicos."}
 # Selección de 15 deportes para el análisis temporal de edad
 deportes_edad <- c("Gymnastics", "Swimming", "Athletics", "Rowing", "Cycling", 
                    "Basketball", "Judo", "Weightlifting", "Football", "Fencing", 
