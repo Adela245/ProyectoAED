@@ -133,7 +133,7 @@ tener una primera visualización sobre los datos y cómo se comportan.
 
 ### Análisis univariante
 
-```{r histogramas, include=T, fig.width=6, fig.height=2.5}
+```{r histogramas, include=T, fig.width=6, fig.height=2.5, fig.cap='Distribución de frecuencia de la edad, altura y peso de los atletas olímpicos.'}
 # histograma univariante de cada variable numérica
 variables <- c("Age", "Height", "Weight")
 nombres <- c("Edad (años)", "Altura (cm)", "Peso (kg)")
@@ -165,7 +165,7 @@ alargada que supera los 120-150 kg.
 
 ### Análisis bivariante
 
-```{r, include=T, fig.width=4, fig.height=2.5}
+```{r, include=T, fig.width=4, fig.height=2.5, fig.cap='Diagramas de caja para el perfil de altura y peso de los atletas diferenciados por sexo.'}
 box <- data.frame()
 for (v in c('Height', 'Weight')) {
   tabla <- data.frame(Sex = atletas_juegos$Sex,
@@ -204,7 +204,7 @@ faltantes se concentran en las variables numéricas: *Edad*, *Altura* y
 
 A continuación, estudiamos la evolución de *NA* con el paso de los años:
 
-```{r, include=T, fig.width=5.5, fig.height=3}
+```{r, include=T, fig.width=5.5, fig.height=3, fig.cap='Evolución temporal del porcentaje de datos perdidos por variable.'}
 cols <- c('Age', 'Height', 'Weight')
 perd_anio <- data.frame()
 for (v in cols) {
@@ -270,7 +270,8 @@ detectar_outliers <- function(x, variable) {
 }
 resultado_outliers <- rbind(detectar_outliers(atletas_juegos$Height, "Altura"),detectar_outliers(atletas_juegos$Weight, "Peso"), detectar_outliers(atletas_juegos$Age, "Edad"))
 
-kable(resultado_outliers, format = "latex", booktabs = TRUE) %>%
+kable(resultado_outliers, format = "latex", booktabs = TRUE, 
+      caption = 'Resultados de la detección de valores atípicos en altura, peso y edad según el método aplicado.') %>%
   kable_styling(font_size = 8, latex_options = c("striped", "hold_position"))
 ```
 
@@ -325,7 +326,7 @@ el análisis.
 El criterio utilizado para eliminar o no outliers se basa en si el valor
 de IMC es menor de 12 o mayor de 50, considerados valores imposibles.
 
-```{r}
+```{r, include=FALSE}
 #Asignamos NA tanto en peso como en altura en estas variables
 outliers_imc <- !is.na(atletas_juegos$IMC) & (atletas_juegos$IMC < 12 | atletas_juegos$IMC > 50)
 #Asignamos NA a las tres variables (por simplificación asignamos NA a altura y edad, pero se podría ver manualmente cúal es la columna errónea)
@@ -350,7 +351,7 @@ instancias que coinciden en sexo, deporte y año de participación.
 Progresivamente, reduciremos el nivel de restricción: una segunda
 imputación donde coincida sexo y deporte; una tercera impitación donde
 coincida sexo. Esto lo realizaremos para las columnas Altura, Peso y
-Edad
+Edad. Posteriormente, recalcularemos el IMC con los datos imputados.
 
 #### Imputacion de la altura, peso y edad.
 
@@ -360,7 +361,6 @@ variables <- c("Height", "Weight", "Age")
 for (var in variables) {
   var_imp <- paste0(var, "_imputed")
   atletas_juegos[[var_imp]] <- atletas_juegos[[var]]
-  
   # Imputación 1: Por Sexo, Deporte y Año
   atletas_juegos[[var_imp]] <- ifelse(
     is.na(atletas_juegos[[var_imp]]),
@@ -368,7 +368,6 @@ for (var in variables) {
         FUN = function(x) round(median(x, na.rm = TRUE))),
     atletas_juegos[[var_imp]]
   )
-  
   # Imputación 2: Por Sexo y Deporte.
   atletas_juegos[[var_imp]] <- ifelse(
     is.na(atletas_juegos[[var_imp]]),
@@ -376,7 +375,6 @@ for (var in variables) {
         FUN = function(x) round(median(x, na.rm = TRUE))),
     atletas_juegos[[var_imp]]
   )
-  
   # Imputación 3: Solo por Sexo 
   atletas_juegos[[var_imp]] <- ifelse(
     is.na(atletas_juegos[[var_imp]]),
@@ -384,9 +382,7 @@ for (var in variables) {
         FUN = function(x) round(median(x, na.rm = TRUE))),
     atletas_juegos[[var_imp]]
   )
-
 }
-
 ```
 
 ```{r IMC-imputed, include=F}
@@ -534,7 +530,7 @@ y ciclismo. Escogimos estas disciplinas porque presentan contrastes
 físicos extremos, incluyen categorías de peso (judo y halterofilia) y
 cuentan con un gran volumen de datos histórico.
 
-```{r p2-biometria-combinada, fig.width=5, fig.height=4, fig.cap="Distribución de la altura (cm) y peso (kg) por deporte y sexo en atletas olímpicos. Los boxplots muestran la mediana, rango intercuartílico y valores atípicos (outliers) identificados."}
+```{r p2-biometria-combinada, fig.width=5, fig.height=4, fig.cap="Distribución de la altura (cm) y peso (kg) por deporte y sexo en atletas olímpicos. Los boxplots muestran la mediana, rango intercuartílico y valores atípicos identificados."}
 #Filtrado y ordenación por mediana de altura
 deportes_sel <- c("Basketball", "Gymnastics", "Weightlifting", "Swimming", 
                   "Athletics", "Judo", "Volleyball", "Cycling")
@@ -634,7 +630,7 @@ en la medicina deportiva.
 
 ## P3: ¿Quién concentra las medallas?
 
-```{r p3-datos,include=T, fig.width=4, fig.height=2}
+```{r p3-datos,include=T, fig.width=4, fig.height=2, fig.cap='Distribución de medallas acumuladas por los diez principales países}
 #En esta sección trabajaremos sobre todo con el df medallero
 #Asignamos Equipo Unificado de 1992 a la URSS
 medallero$NOC[medallero$NOC == "EUN"] <- "URS"
