@@ -630,7 +630,7 @@ en la medicina deportiva.
 
 ## P3: ¿Quién concentra las medallas?
 
-```{r p3-datos,include=T, fig.width=4, fig.height=2, fig.cap='Distribución de medallas acumuladas por los diez principales países}
+```{r p3-datos,include=T, fig.width=4, fig.height=2, fig.cap='Distribución de medallas acumuladas por los diez principales países'}
 #En esta sección trabajaremos sobre todo con el df medallero
 #Asignamos Equipo Unificado de 1992 a la URSS
 medallero$NOC[medallero$NOC == "EUN"] <- "URS"
