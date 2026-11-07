@@ -479,7 +479,7 @@ ggplot(mediana_edad, aes(x = factor(Decada), y = Sport, fill = Mediana)) +
         axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
-
+En cuanto a la edad (Figura \ref{fig:p2-mapa-edad}), hay una diferencia clara entre deportes que exigen mucho esfuerzo físico y los que dependen más de la técnica. Natación y gimnasia tienen a los deportistas más jóvenes, normalmente entre 18 y 22 años. En cambio, en deportes como la hípica, el tiro o las antiguas competiciones de arte, es normal ver a atletas de más de 30 o 40 años. Por último, desde los años 90 se nota que la edad media ha subido un poco en deportes de resistencia como el ciclismo o el remo, rozando los 26 o 27 años
 
 ## P3: ¿Quién concentra las medallas?
 
@@ -586,6 +586,13 @@ y los estereotipos históricos de las federaciones, que retrasaron las
 disciplinas de contacto frente a las estéticas. Por tanto, alcanzar la
 cifra de 2016 (\~45%) responde al impulso regulatorio del COI
 y no a un desarrollo homogéneo entre deportes.
+
+
+
+## P2
+
+Los resultados de la Figura \ref{fig:p2-biometria-combinada} confirman que el deporte de élite "selecciona" a los atletas según su físico para darles ventaja en su disciplina. En el caso del atletismo, la gran cantidad de valores extremos demuestra que no se puede analizar como un único deporte, ya que engloba cuerpos totalmente opuestos.
+
 
 ## P3
 
