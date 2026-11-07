@@ -418,12 +418,7 @@ gimnasia rítmica nacieron como 100% femeninas.
 
 ## P2: Perfil de cuerpo y evolución de la edad por disciplina deportiva
 
-Para estudiar cómo influyen las características físicas en cada
-disciplina sin saturar el informe, seleccionamos 8 deportes clave:
-baloncesto, gimnasia, natación, halterofilia, atletismo, judo, voleibol
-y ciclismo. Escogimos estas disciplinas porque presentan contrastes
-físicos extremos, incluyen categorías de peso (judo y halterofilia) y
-cuentan con un gran volumen de datos histórico.
+Para ver cómo influye el cuerpo en cada deporte, elegimos 8 disciplinas variadas (baloncesto, voleibol, natación, atletismo, ciclismo, judo, halterofilia y gimnasia). También miramos cómo ha cambiado la edad media de los atletas a lo largo de los años en 15 deportes distintos.
 
 ```{r p2-biometria-combinada, fig.width=5, fig.pos="H",fig.height=3, fig.cap="Distribución de la altura (cm) y peso (kg) por deporte y sexo en atletas olímpicos. Los boxplots muestran la mediana, rango intercuartílico y valores atípicos identificados."}
 #Filtrado y ordenación por mediana de altura
@@ -454,33 +449,9 @@ p_peso <- ggplot(obs, aes(x = Weight_imputed, y = Sport, fill = Sex)) +
 
 ```
 
-Las características físicas de los atletas cambian claramente según las
-necesidades de cada deporte y el sexo del participante. El baloncesto y
-el voleibol tienen los atletas más altos y pesados para llegar mejor a
-la red y al aro. En cambio, en la gimnasia se buscan estaturas y pesos
-más bajos, ya que ser más pequeño ayuda a girar más rápido en el aire y
-mover el propio cuerpo con menos esfuerzo. Por su parte, el judo y la
-halterofilia muestran pesos muy variados porque incluyen categorías de
-competición que van desde competidores muy ligeros hasta pesos pesados.
+Si miramos la altura y el peso (Figura \ref{fig:p2-biometria-combinada}), queda claro que cada deporte pide un tipo de cuerpo diferente. En baloncesto y voleibol están los atletas más altos y pesados, algo lógico para llegar mejor a la red o a la canasta. En el otro extremo está la gimnasia, donde dominan las estaturas y pesos más bajos,para mover el cuerpo con menos esfuerzo. En judo y halterofilia los pesos cambian muchísimo porque se compite por categorías. Además, en atletismo saltan a la vista muchísimos valores extremos (outliers); esto pasa porque se juntan pruebas muy distintas, como los lanzadores y los maratonianos.
 
-Llama la atención la gran cantidad de valores extremos (outliers) en el
-atletismo, tanto en altura como en peso. Esto no se debe a errores en
-los datos, sino a que el atletismo agrupa pruebas muy diferentes entre
-sí: por un lado están los lanzadores (de peso o disco), que necesitan
-mucha masa corporal (superando los 120 kg), y por otro los maratonianos,
-que son muy delgados para cansarse menos al correr largas distancias.
-Esta gran variedad de cuerpos en una misma disciplina es lo que genera
-tantos valores alejados de la media.
 
-Para analizar cómo influye la edad en el rendimiento deportivo a lo
-largo de la historia, seleccionamos quince disciplinas estratégicas.
-Elegimos estos deportes específicamente porque cubren todo el abanico de
-exigencias físicas y tácticas del programa olímpico: desde modalidades
-dominadas por la alta potencia muscular y la elasticidad como la
-gimnasia y la natación, hasta disciplinas fundamentadas en la precisión,
-el control mental y la experiencia como el tiro, la hípica y las
-competiciones de arte, pasando por deportes de equipo y de resistencia
-tradicional.
 
 ```{r p2-mapa-edad, fig.width=5, fig.height=2,fig.pos="H", fig.cap="Evolución histórica de la edad mediana de los atletas por deporte y década en los Juegos Olímpicos."}
 # Selección de 15 deportes para el análisis temporal de edad
@@ -508,20 +479,7 @@ ggplot(mediana_edad, aes(x = factor(Decada), y = Sport, fill = Mediana)) +
         axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
-Esta figura muestra que la edad media de los atletas depende de las
-exigencias del deporte y de la época analizada. Por un lado, se observa
-un fuerte contraste entre condición física y experiencia: deportes que
-exigen flexibilidad o potencia muscular (como gimnasia o natación) están
-dominados por jóvenes de entre 18 y 24 años, mientras que disciplinas
-basadas en la precisión, la estabilidad mental o la técnica (como tiro,
-hípica o vela) alcanzan edades medianas muy superiores, sobrepasando con
-frecuencia los 35 o 40 años.
 
-Por otro lado, a partir de los años 90 se aprecia una clara tendencia al
-aumento de la edad media en deportes como atletismo, natación o remo.
-Este progresivo envejecimiento competitivo responde a la
-profesionalización a tiempo completo de los deportistas y a las mejoras
-en la medicina deportiva.
 
 ## P3: ¿Quién concentra las medallas?
 
