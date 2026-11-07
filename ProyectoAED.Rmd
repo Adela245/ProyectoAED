@@ -14,7 +14,7 @@ affiliation:
 type: article
 status: submit
 abstract: |
-  Contexto: [COMPLETAR, 1-2 frases]. Métodos: [COMPLETAR: datos, tratamiento de perdidos, outliers e imputación, técnicas]. Resultados: [COMPLETAR: 2-3 hallazgos con números]. Conclusión: [COMPLETAR].
+  Los Juegos Olímpicos reúnen desde 1896 a atletas de todo el mundo, lo que permite estudiar la evolución del deporte de élite. Analizamos 271.116 registros desde Atenas 1896 a Río 2016 (Kaggle). Tras depurar duplicados e inconsistencias, cuantificamos los datos perdidos (altura 22 %, peso 23 %, edad 3 %), comparamos tres criterios de detección de valores atípicos e imputamos los perdidos con la mediana de casos similares. El número de atletas pasó de 176 a 11.000 por edición y la proporción de mujeres, del 0 % a cerca del 45 %; cada deporte presenta un perfil físico y de edad propio, y las medallas se concentran en pocos países, con Estados Unidos a la cabeza. En definitiva, el trabajo muestra cómo los Juegos Olímpicos han evolucionado en 120 años hacia un modelo cada vez más global, inclusivo y profesionalizado.
 keywords: |
   Juegos Olímpicos; análisis exploratorio de datos; datos perdidos; imputación; valores atípicos
 
@@ -633,6 +633,7 @@ ggplot(sub, aes(x = NOC, fill = Medal)) +
 tot <- sort(table(medallero$NOC), decreasing = TRUE)
 pct_top3 <- round(sum(head(tot, 3)) / sum(tot) * 100, 1)
 pct_top10 <- round(sum(head(tot, 10)) / sum(tot) * 100, 1)
+cat(pct_top10, pct_top3)
 ```
 
 El medallero histórico está encabezado con claridad por Estados Unidos
