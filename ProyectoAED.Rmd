@@ -439,8 +439,15 @@ ggplot(datosP1, aes(x = Year, y = Valor, color = Season)) +
   )
 ```
 
-La participación en los Juegos de Invierno presenta una tendencia monótona creciente y estable a lo largo del periodo analizado. Por el contrario, los Juegos de Verano muestran un crecimiento sostenido pero interrumpido por tres caídas pronunciadas en los años 1932, 1956 y 1980. En las ediciones de 1932 y 1956 destaca un comportamiento divergente: el total de atletas se redujo a menos de la mitad respecto a la edición anterior, mientras que el número de países representados apenas sufrió variación. En 1980, los descensos afectaron de forma simultánea tanto al volumen de deportistas como al número de delegaciones nacionales.
-
+La participación en los Juegos de Invierno presenta una tendencia
+monótona creciente y estable a lo largo del periodo analizado. Por el
+contrario, los Juegos de Verano muestran un crecimiento sostenido pero
+interrumpido por tres caídas pronunciadas en los años 1932, 1956 y 1980.
+En las ediciones de 1932 y 1956 destaca un comportamiento divergente: el
+total de atletas se redujo a menos de la mitad respecto a la edición
+anterior, mientras que el número de países representados apenas sufrió
+variación. En 1980, los descensos afectaron de forma simultánea tanto al
+volumen de deportistas como al número de delegaciones nacionales.
 
 Ahora, analizamos la presencia femenina en los juegos olímpicos por
 década. Asi como la densidad de mujeres en algunos deportes.
@@ -485,7 +492,11 @@ grafico_heatmap <- atletas_juegos %>%
 grafico_pct_mujeres | grafico_heatmap
 ```
 
-La presencia femenina creció hasta el 45% actual, aunque con ritmos muy desiguales: la natación y la gimnasia abrieron categorías a principios del siglo XX, el ciclismo y el fútbol en los años 80, y el boxeo en 2012. En el otro extremo, modalidades como la natación sincronizada o la gimnasia rítmica nacieron como 100% femeninas.
+La presencia femenina creció hasta el 45% actual, aunque con ritmos muy
+desiguales: la natación y la gimnasia abrieron categorías a principios
+del siglo XX, el ciclismo y el fútbol en los años 80, y el boxeo en
+2012. En el otro extremo, modalidades como la natación sincronizada o la
+gimnasia rítmica nacieron como 100% femeninas.
 
 ## P2: Perfil de cuerpo y evolución de la edad por disciplina deportiva
 
@@ -617,6 +628,13 @@ ggplot(sub, aes(x = NOC, fill = Medal)) +
   theme_minimal()
 ```
 
+```{r, include=FALSE}
+#concentración de medallas
+tot <- sort(table(medallero$NOC), decreasing = TRUE)
+pct_top3 <- round(sum(head(tot, 3)) / sum(tot) * 100, 1)
+pct_top10 <- round(sum(head(tot, 10)) / sum(tot) * 100, 1)
+```
+
 El medallero histórico está encabezado con claridad por Estados Unidos
 (2823). En un segundo escalón se sitúan Alemania (1766) y la URSS
 (1332). Se ha de tener en cuenta que para el análisis, se han agrupado
@@ -672,21 +690,36 @@ edición.
 
 ## P1
 
-Como muestra la Figura \ref{fig:p1-datos}, las caídas en la participación en los Juegos de Verano reflejan el impacto de crisis económicas y conflictos geopolíticos del siglo XX. En Los Ángeles 1932, la Gran Depresión de 1929 y los altos costes de viaje obligaron a enviar delegaciones reducidas para mantener la representación sin incurrir en grandes gastos, explicando la caída de atletas sin perder países. En Melbourne 1956, al coste del desplazamiento a Australia se sumaron las tensiones internacionales por la invasión soviética de Hungría, motivando el boicot de varios países (entre ellos España). Finalmente, en Moscú 1980 ocurrió el mayor boicot de la historia, liderado por EE. UU. tras la invasión soviética de Afganistán, provocando la ausencia de 65 delegaciones.
+Como muestra la Figura \ref{fig:p1-datos}, las caídas en la
+participación en los Juegos de Verano reflejan el impacto de crisis
+económicas y conflictos geopolíticos del siglo XX. En Los Ángeles 1932,
+la Gran Depresión de 1929 y los altos costes de viaje obligaron a enviar
+delegaciones reducidas para mantener la representación sin incurrir en
+grandes gastos, explicando la caída de atletas sin perder países. En
+Melbourne 1956, al coste del desplazamiento a Australia se sumaron las
+tensiones internacionales por la invasión soviética de Hungría,
+motivando el boicot de varios países (entre ellos España). Finalmente,
+en Moscú 1980 ocurrió el mayor boicot de la historia, liderado por EE.
+UU. tras la invasión soviética de Afganistán, provocando la ausencia de
+65 delegaciones.
 
-Por otra parte, la inclusión desigual según el deporte que se observa en la Figura \ref{fig:p1-mujeres-heatmap} evidencia las barreras normativas y los estereotipos históricos de las federaciones, que retrasaron las disciplinas de contacto frente a las estéticas. Por tanto, alcanzar la paridad actual (~45%) responde al reciente impulso regulatorio del COI y no a un desarrollo homogéneo entre deportes.
-
+Por otra parte, la inclusión desigual según el deporte que se observa en
+la Figura \ref{fig:p1-mujeres-heatmap} evidencia las barreras normativas
+y los estereotipos históricos de las federaciones, que retrasaron las
+disciplinas de contacto frente a las estéticas. Por tanto, alcanzar la
+paridad actual (\~45%) responde al reciente impulso regulatorio del COI
+y no a un desarrollo homogéneo entre deportes.
 
 ## P3
 
 El dominio histórico de potencias como Estados Unidos, Alemania y la
 URSS sugiere que el éxito olímpico depende de una fuerte inversión y
-organización estatal. Sin embargo, al carecer de datos como el PIB o la
-población, esto se mantiene como hipótesis, abriendo la puerta a futuras
+organización del deporte. Sin embargo, al carecer de datos como el PIB o
+la población, esto es una hipótesis, abriendo la puerta a futuras
 investigaciones que crucen estas variables.
 
-A nivel individual, la prevalencia de nadadores y gimnastas confirma el
-impacto decisivo de los deportes "multimedalla" en la élite histórica.
+A nivel individual, la prevalencia de nadadores y gimnastas es coherente
+con el peso de los deportes "multimedalla".
 
 Finalmente, cabe señalar como limitación el corte temporal de los datos
 (hasta Río 2016), lo que provoca que los rankings expuestos en el
