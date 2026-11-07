@@ -14,7 +14,7 @@ affiliation:
 type: article
 status: submit
 abstract: |
-  Los Juegos Olímpicos reúnen desde 1896 a atletas de todo el mundo, lo que permite estudiar la evolución del deporte de élite. Analizamos 271.116 registros desde Atenas 1896 a Río 2016 (Kaggle). Tras depurar duplicados e inconsistencias, cuantificamos los datos perdidos (altura 22 %, peso 23 %, edad 3 %), comparamos tres criterios de detección de valores atípicos e imputamos los perdidos con la mediana de casos similares. El número de atletas pasó de 176 a 11.000 por edición y la proporción de mujeres, del 0 % a cerca del 45 %; cada deporte presenta un perfil físico y de edad propio, y las medallas se concentran en pocos países, con Estados Unidos a la cabeza. En definitiva, el trabajo muestra cómo los Juegos Olímpicos han evolucionado en 120 años hacia un modelo cada vez más global, inclusivo y profesionalizado.
+  Los Juegos Olímpicos reúnen desde 1896 a atletas de todo el mundo, lo que permite estudiar la evolución del deporte de élite. Analizamos 271.116 registros desde Atenas 1896 a Río 2016 (Kaggle). Tras depurar duplicados e inconsistencias, cuantificamos los datos perdidos (altura 22 %, peso 23 %, edad 3 %), comparamos tres criterios de detección de valores atípicos e imputamos los perdidos con la mediana de casos similares. El número de atletas pasó de 176 a 11.000 por edición y la proporción de mujeres, del 0 % a cerca del 45 %; cada deporte presenta un perfil físico y de edad propio, y las medallas se concentran en pocos países, con Estados Unidos a la cabeza. En definitiva, el trabajo muestra cómo los Juegos Olímpicos han evolucionado en 120 años hacia un modelo cada vez más global e inclusivo.
 keywords: |
   Juegos Olímpicos; análisis exploratorio de datos; datos perdidos; imputación; valores atípicos
 
@@ -38,20 +38,13 @@ editor_options:
 
 ```{r setup, echo = FALSE, include = FALSE}
 knitr::opts_chunk$set(echo = T, warning = FALSE, message = FALSE,fig.width = 5, fig.height = 4, fig.align = 'center')
-p <- c('tidyverse', 'skimr', 'naniar', 'janitor', 'here', 'ggplot2', 'mice', 'patchwork', 'kableExtra')
+p <- c('tidyverse', 'ggplot2', 'patchwork', 'kableExtra')
 if (length(f <- setdiff(p, rownames(installed.packages())))) install.packages(f)
 sapply(p, require, character.only = TRUE)
 library(ggplot2)
-library(naniar)
-library(mice)
 library(patchwork)
 library(tidyverse)
-library(skimr)
-library(janitor)
-library(here)
 library(kableExtra)
-
-
 ```
 
 # Introducción
@@ -75,19 +68,26 @@ las medallas?
 
 ## Importación y descripción de los datos
 
-Cargamos los datos y hacemos un vistazo general construyendo un sumario.
+Cargamos el conjunto de datos y realizamos una inspección general mediante la construcción de un sumario. Aunque este análisis descriptivo se ejecutó sobre la totalidad de las variables, a continuación se presentan únicamente aquellas de mayor interés para los estudios posteriores.
+
+```{r prep-datos, echo = FALSE, include = FALSE}
+datos <- read.csv('./data/athlete_events.csv')
+
+# Selección silenciosa de variables de interés
+datos_sub <- datos[, c("Age", "Height", "Weight", "Medal")]
+```
+
 
 ```{r datos, include=T, echo = T}
-datos <- read.csv('./data/athlete_events.csv')#cargamos los datos
 # Realizamos un sumario para visualizar los datos
-sumario <- data.frame(variable = colnames(datos))
-sumario$type     <- sapply(datos, function(x) class(x)[1])
-sumario$levels   <- sapply(datos, function(x) length(unique(x)))
-sumario$topLevel <- sapply(datos, function(x) names(which.max(table(x))))
-sumario$topCount <- sapply(datos, function(x) max(table(x)))
-sumario$topFrac  <- sumario$topCount / nrow(datos)
-sumario$missFreq <- sapply(datos, function(x) sum(is.na(x)))
-sumario$missFrac <- sumario$missFreq / nrow(datos)
+sumario <- data.frame(variable = colnames(datos_sub))
+sumario$type     <- sapply(datos_sub, function(x) class(x)[1])
+sumario$levels   <- sapply(datos_sub, function(x) length(unique(x)))
+sumario$topLevel <- sapply(datos_sub, function(x) names(which.max(table(x))))
+sumario$topCount <- sapply(datos_sub, function(x) max(table(x)))
+sumario$topFrac  <- sumario$topCount / nrow(datos_sub)
+sumario$missFreq <- sapply(datos_sub, function(x) sum(is.na(x)))
+sumario$missFrac <- sumario$missFreq / nrow(datos_sub)
 
 knitr::kable(sumario, row.names = FALSE, caption = "Sumario del dataset original") %>%
   kable_styling(
@@ -96,11 +96,7 @@ knitr::kable(sumario, row.names = FALSE, caption = "Sumario del dataset original
   )
 ```
 
-En este sumario podemos observar información sobre cada variable.
-Destaca el caso de la variable *Medal*, con un 85% de valores perdidos.
-Sin embargo, esto no se trata de un error, según la información del
-dataset, esto no se trata de valores perdidos sino atletas sin medalla.
-Esto se tratará debidamente en la siguiente sección.
+Destaca especialmente el caso de la variable Medal, que presenta un 85% de valores faltantes. Conviene aclarar que esto no responde a un error de registro, sino a atletas que no obtuvieron medalla. Este aspecto se acondicionará en la siguiente sección.
 
 ## Acondicionamiento
 
@@ -165,7 +161,7 @@ alargada que supera los 120-150 kg.
 
 ### Análisis bivariante
 
-```{r, include=T, fig.width=4, fig.height=2.5, fig.cap='Diagramas de caja para el perfil de altura y peso de los atletas diferenciados por sexo.'}
+```{r, include=F, fig.width=4, fig.height=2.5, fig.cap='Diagramas de caja para el perfil de altura y peso de los atletas diferenciados por sexo.'}
 box <- data.frame()
 for (v in c('Height', 'Weight')) {
   tabla <- data.frame(Sex = atletas_juegos$Sex,
@@ -439,15 +435,20 @@ ggplot(datosP1, aes(x = Year, y = Valor, color = Season)) +
   )
 ```
 
+```{r, include=F}
+verano <- juegos[juegos$Season == "Summer", ]
+verano$cambio_atletas <- round((verano$Atletas / c(NA, head(verano$Atletas, -1)) - 1) * 100, 1)
+verano$cambio_paises  <- round((verano$Paises  / c(NA, head(verano$Paises, -1)) - 1) * 100, 1)
+verano[verano$Year %in% c(1932, 1956, 1980), c("Year", "Atletas", "Paises", "cambio_atletas", "cambio_paises")]
+```
+
+
 La participación en los Juegos de Invierno presenta una tendencia
 monótona creciente y estable a lo largo del periodo analizado. Por el
 contrario, los Juegos de Verano muestran un crecimiento sostenido pero
 interrumpido por tres caídas pronunciadas en los años 1932, 1956 y 1980.
 En las ediciones de 1932 y 1956 destaca un comportamiento divergente: el
-total de atletas se redujo a menos de la mitad respecto a la edición
-anterior, mientras que el número de países representados apenas sufrió
-variación. En 1980, los descensos afectaron de forma simultánea tanto al
-volumen de deportistas como al número de delegaciones nacionales.
+total de atletas se redujo respecto a la edición anterior, mientras que el número de países representados apenas sufrió variación. En 1980, los descensos afectaron de forma simultánea tanto al volumen de deportistas como al número de delegaciones nacionales.
 
 Ahora, analizamos la presencia femenina en los juegos olímpicos por
 década. Asi como la densidad de mujeres en algunos deportes.
@@ -492,10 +493,8 @@ grafico_heatmap <- atletas_juegos %>%
 grafico_pct_mujeres | grafico_heatmap
 ```
 
-La presencia femenina creció hasta el 45% actual, aunque con ritmos muy
-desiguales: la natación y la gimnasia abrieron categorías a principios
-del siglo XX, el ciclismo y el fútbol en los años 80, y el boxeo en
-2012. En el otro extremo, modalidades como la natación sincronizada o la
+La presencia femenina creció hasta el 45% en 2016, aunque con ritmos muy
+desiguales, por ejemplo: la natación y la gimnasia abrieron categorías a principios del siglo XX, el ciclismo en los 80, el fútbol en los 90 y el boxeo en 2012. En el otro extremo, modalidades como la natación sincronizada o la
 gimnasia rítmica nacieron como 100% femeninas.
 
 ## P2: Perfil de cuerpo y evolución de la edad por disciplina deportiva
@@ -607,7 +606,7 @@ en la medicina deportiva.
 
 ## P3: ¿Quién concentra las medallas?
 
-```{r p3-datos,include=T, fig.width=4, fig.height=2, fig.cap='Distribución de medallas acumuladas por los diez principales países'}
+```{r p3-datos,include=T, fig.width=4, fig.height=2, fig.cap='Top 10 países según el número de medallas.'}
 #En esta sección trabajaremos sobre todo con el df medallero
 #Asignamos Equipo Unificado de 1992 a la URSS
 medallero$NOC[medallero$NOC == "EUN"] <- "URS"
@@ -643,7 +642,7 @@ las medallas de la RFA y RDA en Alemania, ya que comparten la misma base
 histórica y demográfica. Además, sumamos las medallas del Equipo
 Unificado a la URSS.
 
-```{r p3-ranking medallero individual, fig.width=5, fig.height=2}
+```{r p3-ranking-medallero-individual, fig.width=5, fig.height=2, fig.cap='Top 10 atletas con más medallas.'}
 #Repetimos mismo proceso con el top 10 de medallas
 ranking_oficial <- medallas %>%
   group_by(Name) %>%
@@ -708,7 +707,7 @@ Por otra parte, la inclusión desigual según el deporte que se observa en
 la Figura \ref{fig:p1-mujeres-heatmap} evidencia las barreras normativas
 y los estereotipos históricos de las federaciones, que retrasaron las
 disciplinas de contacto frente a las estéticas. Por tanto, alcanzar la
-paridad actual (\~45%) responde al reciente impulso regulatorio del COI
+cifra de 2016 (\~45%) responde al impulso regulatorio del COI
 y no a un desarrollo homogéneo entre deportes.
 
 ## P3
