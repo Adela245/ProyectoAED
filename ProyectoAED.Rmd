@@ -667,3 +667,11 @@ Finalmente, cabe señalar como limitación el corte temporal de los datos
 análisis no coincidan con los actuales.
 
 # Conclusiones
+
+Este trabajo evidencia la necesidad de depurar adecuadamente los datos antes de su análisis. La eliminación de registros duplicados y la imputación jerárquica por medianas (según sexo, deporte y año) permitieron completar los vacíos históricos sin alterar el perfil físico de los atletas. Asimismo, al revisar el IMC se comprobó que los valores extremos no correspondían a errores de registro, sino a los perfiles físicos de cada deporte.
+
+En cuanto a la evolución de los Juegos, la participación ha aumentado de forma continua en el tiempo, sufriendo caídas en las ediciones de verano por crisis económicas y boicots políticos. Por su parte, la presencia femenina pasó de ser inexistente en los inicios a rozar el 45 % en Río 2016, aunque la incorporación de categorías se produjo a ritmos muy desiguales según la disciplina.
+
+Asimismo, se confirma que cada deporte requiere un perfil físico específico: la altura y el peso destacan en disciplinas como el baloncesto o el voleibol, mientras que la gimnasia exige deportistas más pequeños y ligeros. Con la edad ocurre algo similar: los deportes de mayor exigencia de potencia presentan una etapa competitiva corta y temprana, mientras que en los de precisión o resistencia la experiencia permite prolongar la carrera deportiva.
+
+Por último, el medallero histórico muestra una clara concentración del éxito en grandes potencias como Estados Unidos, Alemania y la URSS. A nivel individual, el acumulado de medallas depende en gran medida de la estructura de cada deporte, ya que especialidades como la natación o la gimnasia ofrecen múltiples pruebas por edición, lo que facilita acumular varios podios a un mismo atleta.
