@@ -152,7 +152,7 @@ Finalmente, aunque las distribuciones de altura y peso muestran diferencias evid
 
 Tras la inspección inicial, los datos faltantes se concentran en las variables numéricas: *Edad*, *Altura* y *Peso*.
 
-```{r, include=T, fig.width=5, fig.height=2,fig.pos="H", fig.cap='Evolución temporal del porcentaje de datos perdidos por variable.'}
+```{r perdidos-evolución, include=T, fig.width=5, fig.height=2,fig.pos="H", fig.cap='Evolución temporal del porcentaje de datos perdidos por variable.'}
 cols <- c('Age', 'Height', 'Weight')
 perd_anio <- data.frame()
 for (v in cols) {
